@@ -66,6 +66,28 @@ class Project
     protected  $APIReportAllowed = true;
 
     /**
+     * @var boolean
+     *
+     * @ORM\Column(name="is_web_read_allowed", type="boolean", nullable=false, options={"default" : true})
+     */
+    protected  $WebReadAllowed = true;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="is_web_moderated_edit_allowed", type="boolean", nullable=false, options={"default" : true})
+     */
+    protected  $WebModeratedEditAllowed = true;
+
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="is_web_report_allowed", type="boolean", nullable=false, options={"default" : true})
+     */
+    protected  $WebReportAllowed = true;
+
+    /**
      * @var \DateTime $createdAt
      *
      * @ORM\Column(name="created_at", type="datetime", nullable=false)
@@ -189,6 +211,55 @@ class Project
     public function setAPIReportAllowed( $APIReportAllowed ) {
         $this->APIReportAllowed = $APIReportAllowed;
     }
+
+    /**
+     * @return bool
+     */
+    public function isWebReadAllowed()
+    {
+        return $this->WebReadAllowed;
+    }
+
+    /**
+     * @param bool $WebReadAllowed
+     */
+    public function setWebReadAllowed($WebReadAllowed)
+    {
+        $this->WebReadAllowed = $WebReadAllowed;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isWebModeratedEditAllowed()
+    {
+        return $this->WebModeratedEditAllowed;
+    }
+
+    /**
+     * @param bool $WebModeratedEditAllowed
+     */
+    public function setWebModeratedEditAllowed($WebModeratedEditAllowed)
+    {
+        $this->WebModeratedEditAllowed = $WebModeratedEditAllowed;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isWebReportAllowed()
+    {
+        return $this->WebReportAllowed;
+    }
+
+    /**
+     * @param bool $WebReportAllowed
+     */
+    public function setWebReportAllowed($WebReportAllowed)
+    {
+        $this->WebReportAllowed = $WebReportAllowed;
+    }
+
 
 
 

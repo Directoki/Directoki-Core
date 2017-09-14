@@ -51,6 +51,9 @@
 		<p>You have no fields</p>
 	{% endif %}
 
+    {% if project.WebReportAllowed %}
+	    <a href="{{  path('directoki_project_locale_directory_record_report', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':directory.publicId,'recordId':record.publicId }) }}" class="btn btn-default">Report</a>
+    {% endif %}
 
 
 {%  endblock %}

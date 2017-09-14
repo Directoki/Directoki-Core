@@ -27,6 +27,10 @@ directoki_project_locale_directory_record_show:
     path:     /project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}
     defaults: { _controller: DirectokiBundle:ProjectLocaleDirectoryRecord:index }
 
+directoki_project_locale_directory_record_report:
+    path:     /project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/report
+    defaults: { _controller: DirectokiBundle:ProjectLocaleDirectoryRecordEdit:report }
+
 directoki_admin_project_new:
     path:     /admin/newProject
     defaults: { _controller: DirectokiBundle:AdminDefaultEdit:newProject }
