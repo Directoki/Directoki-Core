@@ -53,6 +53,9 @@
 
     {% if project.WebReportAllowed %}
 	    <a href="{{  path('directoki_project_locale_directory_record_report', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':directory.publicId,'recordId':record.publicId }) }}" class="btn btn-default">Report</a>
+	{% endif %}
+	{% if project.WebModeratedEditAllowed %}
+	   <a href="{{  path('directoki_project_locale_directory_record_edit', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':directory.publicId,'recordId':record.publicId }) }}" class="btn btn-default">Edit</a>
     {% endif %}
 
 

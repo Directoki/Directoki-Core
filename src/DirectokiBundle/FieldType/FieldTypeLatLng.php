@@ -279,4 +279,87 @@ class FieldTypeLatLng extends  BaseFieldType {
         return '';
     }
 
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        $latestValue = $this->getLatestFieldValue($field, $record);
+
+        $formBuilderInterface->add('field_'.$field->getPublicId().'_lat', NumberType::class, array(
+            'required' => false,
+            'label'=>$field->getTitle().' Lat',
+            'scale'=>12,
+            'data'=>$latestValue->getLat(),
+        ));
+
+        $formBuilderInterface->add('field_'.$field->getPublicId().'_lng', NumberType::class, array(
+            'required' => false,
+            'label'=>$field->getTitle().' Lng',
+            'scale'=>12,
+            'data'=>$latestValue->getLng(),
+        ));
+    }
+
+    public function getViewTemplatePublicEditRecordForm()
+    {
+        return '@Directoki/FieldType/LatLng/publicEditRecordForm.html.twig';
+    }
+
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        $lat = $form->get('field_'.$field->getPublicId().'_lat')->getData();
+        $lng = $form->get('field_'.$field->getPublicId().'_lng')->getData();
+        $latestValue = $this->getLatestFieldValue($field, $record);
+        if ($this->areOldAndNewValuesDifferent($latestValue->getLat(), $latestValue->getLng(), $lat, $lng)) {
+            $newRecordHasFieldValues = new RecordHasFieldLatLngValue();
+            $newRecordHasFieldValues->setRecord($record);
+            $newRecordHasFieldValues->setField($field);
+            $newRecordHasFieldValues->setLat($lat);
+            $newRecordHasFieldValues->setLng($lng);
+            $newRecordHasFieldValues->setCreationEvent($creationEvent);
+            if ($published) {
+                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
+            }
+            return array($newRecordHasFieldValues);
+        }
+        return array();
+    }
+
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        $formBuilderInterface->add('field_'.$field->getPublicId().'_lat', NumberType::class, array(
+            'required' => false,
+            'label'=>$field->getTitle().' Lat',
+            'scale'=>12,
+        ));
+
+        $formBuilderInterface->add('field_'.$field->getPublicId().'_lng', NumberType::class, array(
+            'required' => false,
+            'label'=>$field->getTitle().' Lng',
+            'scale'=>12,
+        ));
+    }
+
+    public function getViewTemplatePublicNewRecordForm()
+    {
+        return '@Directoki/FieldType/LatLng/publicNewRecordForm.html.twig';
+    }
+
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        $lat = $form->get('field_'.$field->getPublicId().'_lat')->getData();
+        $lng = $form->get('field_'.$field->getPublicId().'_lng')->getData();
+        if ($lat && $lng) {
+            $newRecordHasFieldValues = new RecordHasFieldLatLngValue();
+            $newRecordHasFieldValues->setRecord($record);
+            $newRecordHasFieldValues->setField($field);
+            $newRecordHasFieldValues->setLat($lat);
+            $newRecordHasFieldValues->setLng($lng);
+            $newRecordHasFieldValues->setCreationEvent($creationEvent);
+            if ($published) {
+                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
+            }
+            return array($newRecordHasFieldValues);
+        }
+        return array();
+    }
+
 }

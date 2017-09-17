@@ -78,6 +78,18 @@ abstract class  BaseFieldType {
 
     public abstract function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published=false );
 
+    public abstract function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface);
+
+    public abstract function getViewTemplatePublicEditRecordForm();
+
+    public abstract function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published=false );
+
+    public abstract function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface);
+
+    public abstract function getViewTemplatePublicNewRecordForm();
+
+    public abstract function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published=false );
+
     public abstract function getExportCSVHeaders(Field $field);
 
     public abstract function getExportCSVData(Field $field, Record $record);

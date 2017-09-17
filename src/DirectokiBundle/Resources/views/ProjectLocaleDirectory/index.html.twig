@@ -23,4 +23,9 @@
 
 	<a href="{{  path('directoki_project_locale_directory_record_list', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':directory.publicId }) }}" class="btn btn-default">Records</a>
 
+
+	{% if project.WebModeratedEditAllowed %}
+	   <a href="{{  path('directoki_project_locale_directory_record_new', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':directory.publicId }) }}" class="btn btn-default">New</a>
+    {% endif %}
+
 {%  endblock %}

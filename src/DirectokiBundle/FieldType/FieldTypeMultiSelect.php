@@ -512,5 +512,89 @@ class FieldTypeMultiSelect extends  BaseFieldType
         return implode(' ', $out);
     }
 
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        $repoRecordHasFieldMultiSelectValue = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:RecordHasFieldMultiSelectValue');
+        foreach ($this->getSelectValues($field) as $selectValue) {
+            $recordFieldHasValue = $repoRecordHasFieldMultiSelectValue->getRecordFieldHasValue($record, $field, $selectValue);
+            $formBuilderInterface->add('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId(), CheckboxType::class, array(
+                'required' => false,
+                'label' => $selectValue->getTitle(),
+                'data' => $recordFieldHasValue ? true : false,
+            ));
+        }
+    }
+
+    public function getViewTemplatePublicEditRecordForm()
+    {
+        return '@Directoki/FieldType/MultiSelect/publicEditRecordForm.html.twig';
+    }
+
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        $repoRecordHasFieldMultiSelectValue = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:RecordHasFieldMultiSelectValue');
+        $entitesToSave = array();
+        foreach ($this->getSelectValues($field) as $selectValue) {
+            $recordFieldHasValue = $repoRecordHasFieldMultiSelectValue->getRecordFieldHasValue($record, $field, $selectValue);
+            $value = $form->get('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId())->getData();
+            if ($value && !$recordFieldHasValue) {
+                $newRecordHasFieldValues = new RecordHasFieldMultiSelectValue();
+                $newRecordHasFieldValues->setRecord($record);
+                $newRecordHasFieldValues->setField($field);
+                $newRecordHasFieldValues->setSelectValue($selectValue);
+                $newRecordHasFieldValues->setAdditionCreationEvent($creationEvent);
+                if ($published) {
+                    $newRecordHasFieldValues->setAdditionApprovalEvent($creationEvent);
+                }
+                $entitesToSave[] = $newRecordHasFieldValues;
+            } else if ($recordFieldHasValue && !$value) {
+                if ($published) {
+                    // TODO!!!!!!!!!!!!!!!!!!!!!!
+                } else {
+                    if (!$recordFieldHasValue->getRemovalCreationEvent()) {
+                        $recordFieldHasValue->setRemovalCreationEvent($creationEvent);
+                        $entitesToSave[] = $recordFieldHasValue;
+                    }
+                }
+            }
+        }
+        return $entitesToSave;
+    }
+
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        foreach ($this->getSelectValues($field) as $selectValue) {
+            $formBuilderInterface->add('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId(), CheckboxType::class, array(
+                'required' => false,
+                'label'=> $selectValue->getTitle(),
+            ));
+        }
+    }
+
+    public function getViewTemplatePublicNewRecordForm()
+    {
+        return '@Directoki/FieldType/MultiSelect/publicNewRecordForm.html.twig';
+    }
+
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        $entitesToSave = array();
+        foreach ($this->getSelectValues($field) as $selectValue) {
+            $value = $form->get('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId())->getData();
+            if ($value) {
+                $newRecordHasFieldValues = new RecordHasFieldMultiSelectValue();
+                $newRecordHasFieldValues->setRecord($record);
+                $newRecordHasFieldValues->setField($field);
+                $newRecordHasFieldValues->setSelectValue($selectValue);
+                $newRecordHasFieldValues->setAdditionCreationEvent($creationEvent);
+                if ($published) {
+                    $newRecordHasFieldValues->setAdditionApprovalEvent($creationEvent);
+                }
+                $entitesToSave[] = $newRecordHasFieldValues;
+            }
+        }
+        return $entitesToSave;
+    }
+
 }
 

@@ -23,7 +23,7 @@ class DefaultController extends Controller
 
         $doctrine = $this->getDoctrine()->getManager();
         $repo = $doctrine->getRepository('DirectokiBundle:Project');
-        $projects = $repo->findAll();
+        $projects = $repo->findBy(array('WebReadAllowed'=>true));
 
 
 

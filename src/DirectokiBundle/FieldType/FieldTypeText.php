@@ -202,7 +202,8 @@ class FieldTypeText extends  BaseFieldType {
         $formBuilderInterface->add($field->getPublicId(), TextareaType::class, array(
             'required' => false,
             'label'=>$field->getTitle(),
-        ));    }
+        ));
+    }
 
     public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
@@ -248,6 +249,67 @@ class FieldTypeText extends  BaseFieldType {
     {
         $value = $this->getLatestFieldValue($field, $record);
         return $value ? $value->getValue() : '';
+    }
+
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        $formBuilderInterface->add('field_'.$field->getPublicId(), TextareaType::class, array(
+            'required' => false,
+            'label'=>$field->getTitle(),
+            'data' => $this->getLatestFieldValue($field, $record)->getValue(),
+        ));
+    }
+
+    public function getViewTemplatePublicEditRecordForm()
+    {
+        return '@Directoki/FieldType/Text/publicEditRecordForm.html.twig';
+    }
+
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        $data = $this->filterValue($form->get('field_'.$field->getPublicId())->getData());
+        if ($data != $this->getLatestFieldValue($field, $record)->getValue()) {
+            $newRecordHasFieldValues = new RecordHasFieldTextValue();
+            $newRecordHasFieldValues->setRecord($record);
+            $newRecordHasFieldValues->setField($field);
+            $newRecordHasFieldValues->setValue($data);
+            $newRecordHasFieldValues->setCreationEvent($creationEvent);
+            if ($published) {
+                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
+            }
+            return array($newRecordHasFieldValues);
+        }
+        return array();
+    }
+
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        $formBuilderInterface->add('field_'.$field->getPublicId(), TextareaType::class, array(
+            'required' => false,
+            'label'=>$field->getTitle(),
+        ));
+    }
+
+    public function getViewTemplatePublicNewRecordForm()
+    {
+        return '@Directoki/FieldType/Text/publicNewRecordForm.html.twig';
+    }
+
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        $data = $form->get('field_'.$field->getPublicId())->getData();
+        if ($data) {
+            $newRecordHasFieldValues = new RecordHasFieldTextValue();
+            $newRecordHasFieldValues->setRecord($record);
+            $newRecordHasFieldValues->setField($field);
+            $newRecordHasFieldValues->setValue($data);
+            $newRecordHasFieldValues->setCreationEvent($creationEvent);
+            if ($published) {
+                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
+            }
+            return array($newRecordHasFieldValues);
+        }
+        return array();
     }
 
 }

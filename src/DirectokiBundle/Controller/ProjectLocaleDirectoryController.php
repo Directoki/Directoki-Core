@@ -37,6 +37,9 @@ class ProjectLocaleDirectoryController extends Controller
         if (!$this->project) {
             throw new  NotFoundHttpException('Not found');
         }
+        if (!$this->project->isWebReadAllowed()) {
+            throw new NotFoundHttpException('Read Feature Not Found');
+        }
         // load
         $repository = $doctrine->getRepository('DirectokiBundle:Locale');
         $this->locale = $repository->findOneBy(array('project'=>$this->project,'publicId'=>$localeId));

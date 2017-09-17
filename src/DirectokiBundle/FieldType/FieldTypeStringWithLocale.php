@@ -427,4 +427,36 @@ class FieldTypeStringWithLocale extends BaseFieldType {
         return $value ? $value->getValue() : '';
     }
 
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        // TODO: Implement addToPublicEditRecordForm() method.
+    }
+
+    public function getViewTemplatePublicEditRecordForm()
+    {
+        return '@Directoki/FieldType/StringWithLocale/publicEditRecordForm.html.twig';
+    }
+
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        // TODO: Implement processPublicEditRecordForm() method.
+        return array();
+    }
+
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        // TODO: Implement addToPublicNewRecordForm() method.
+    }
+
+    public function getViewTemplatePublicNewRecordForm()
+    {
+        return '@Directoki/FieldType/StringWithLocale/publicNewRecordForm.html.twig';
+    }
+
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        // TODO: Implement processPublicNewRecordForm() method.
+        return array();
+    }
+
 }

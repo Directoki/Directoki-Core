@@ -205,4 +205,68 @@ class FieldTypeBoolean extends  BaseFieldType {
         return '';
     }
 
+
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        $formBuilderInterface->add('field_'.$field->getPublicId(), CheckboxType::class, array(
+            'required' => false,
+            'label'=>$field->getTitle(),
+            'value' => true,
+            'data' => $this->getLatestFieldValue($field, $record)->getValue(),
+        ));
+    }
+
+    public function getViewTemplatePublicEditRecordForm()
+    {
+        return '@Directoki/FieldType/Boolean/publicEditRecordForm.html.twig';
+    }
+
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        $data = $form->get('field_'.$field->getPublicId())->getData();
+        if ($data != $this->getLatestFieldValue($field, $record)->getValue()) {
+            $newRecordHasFieldValues = new RecordHasFieldBooleanValue();
+            $newRecordHasFieldValues->setRecord($record);
+            $newRecordHasFieldValues->setField($field);
+            $newRecordHasFieldValues->setValue($data);
+            $newRecordHasFieldValues->setCreationEvent($creationEvent);
+            if ($published) {
+                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
+            }
+            return array($newRecordHasFieldValues);
+        }
+        return array();
+    }
+
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    {
+        $formBuilderInterface->add('field_'.$field->getPublicId(), CheckboxType::class, array(
+            'required' => false,
+            'label'=>$field->getTitle(),
+            'value' => true,
+        ));
+    }
+
+    public function getViewTemplatePublicNewRecordForm()
+    {
+        return '@Directoki/FieldType/Boolean/publicNewRecordForm.html.twig';
+    }
+
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    {
+        $data = $form->get('field_'.$field->getPublicId())->getData();
+        if ($data) {
+            $newRecordHasFieldValues = new RecordHasFieldBooleanValue();
+            $newRecordHasFieldValues->setRecord($record);
+            $newRecordHasFieldValues->setField($field);
+            $newRecordHasFieldValues->setValue($data);
+            $newRecordHasFieldValues->setCreationEvent($creationEvent);
+            if ($published) {
+                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
+            }
+            return array($newRecordHasFieldValues);
+        }
+        return array();
+    }
+
 }
