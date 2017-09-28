@@ -177,8 +177,8 @@ class FieldTypeStringWithLocale extends BaseFieldType {
 
         foreach($repo->findByProject($record->getDirectory()->getProject()) as $locale) {
 
-            $newValue = $form->get('value_'.$locale->getPublicId())->getData();
-            $currentValue = $this->getLatestFieldValueForLocale($field, $record, $locale)->getValue();
+            $newValue = self::filterValue($form->get('value_'.$locale->getPublicId())->getData());
+            $currentValue = self::filterValue($this->getLatestFieldValueForLocale($field, $record, $locale)->getValue());
 
             if ($newValue != $currentValue) {
 
@@ -266,8 +266,8 @@ class FieldTypeStringWithLocale extends BaseFieldType {
 
             if ($parameterBag->has('field_'.$field->getPublicId().'_value_'. $locale->getPublicId())) {
 
-                $newValue = $parameterBag->get('field_'.$field->getPublicId().'_value_'. $locale->getPublicId());
-                $currentValue = $this->getLatestFieldValueForLocale($field, $record, $locale)->getValue();
+                $newValue = self::filterValue($parameterBag->get('field_'.$field->getPublicId().'_value_'. $locale->getPublicId()));
+                $currentValue = self::filterValue($this->getLatestFieldValueForLocale($field, $record, $locale)->getValue());
 
                 if ($newValue != $currentValue) {
 
@@ -304,8 +304,8 @@ class FieldTypeStringWithLocale extends BaseFieldType {
 
             if ($fieldValueEdit->getNewValue($locale->getPublicId())) {
 
-                $newValue = $fieldValueEdit->getNewValue($locale->getPublicId());
-                $currentValue = $record ? $this->getLatestFieldValueForLocale($field, $record, $locale)->getValue() : '';
+                $newValue = self::filterValue($fieldValueEdit->getNewValue($locale->getPublicId()));
+                $currentValue = $record ? self::filterValue($this->getLatestFieldValueForLocale($field, $record, $locale)->getValue()) : '';
 
                 if ($newValue != $currentValue) {
 
@@ -379,7 +379,7 @@ class FieldTypeStringWithLocale extends BaseFieldType {
 
         foreach($repo->findByProject($record->getDirectory()->getProject()) as $locale) {
 
-            $newValue = $form->get($field->getPublicId().'_value_'.$locale->getPublicId())->getData();
+            $newValue = self::filterValue($form->get($field->getPublicId().'_value_'.$locale->getPublicId())->getData());
 
             if ($newValue) {
                 $newRecordHasFieldValues = new RecordHasFieldStringWithLocaleValue();
@@ -457,6 +457,11 @@ class FieldTypeStringWithLocale extends BaseFieldType {
     {
         // TODO: Implement processPublicNewRecordForm() method.
         return array();
+    }
+
+
+    public static function filterValue($value) {
+        return trim(str_replace("\r","", str_replace("\n","", $value)));
     }
 
 }

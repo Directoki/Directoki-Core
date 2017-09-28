@@ -115,7 +115,7 @@ class PublishedRecordEditExistingFieldTypeStringWithDataBaseTest extends BaseTes
 
         # Edit
 
-        $recordEditIntAPI->getFieldValueEdit('title')->setNewValue('Less Silly Title Please');
+        $recordEditIntAPI->getFieldValueEdit('title')->setNewValue("Less Silly Title Please   \n\r"); // Cruft at end added specially to make sure it's cleaned up.
         $recordEditIntAPI->setComment('Test');
         $recordEditIntAPI->setEmail('test@example.com');
 
@@ -230,7 +230,7 @@ class PublishedRecordEditExistingFieldTypeStringWithDataBaseTest extends BaseTes
 
         # Edit
 
-        $recordEditIntAPI->getFieldValueEdit('title')->setNewValue('Less Silly Title Please');
+        $recordEditIntAPI->getFieldValueEdit('title')->setNewValue("Less Silly Title Please  \n\r"); // Cruft at end added specially to make sure it's cleaned up.
         $recordEditIntAPI->setComment('Test');
         $recordEditIntAPI->setEmail('test@example.com');
         $recordEditIntAPI->setApproveInstantlyIfAllowed(true);
@@ -344,7 +344,7 @@ class PublishedRecordEditExistingFieldTypeStringWithDataBaseTest extends BaseTes
 
         # Edit
 
-        $recordEditIntAPI->getFieldValueEdit('title')->setNewValue('Less Silly Title Please');
+        $recordEditIntAPI->getFieldValueEdit('title')->setNewValue("Less Silly Title Please   \n\r"); // Cruft at end added specially to make sure it's cleaned up.
         $recordEditIntAPI->setComment('Test');
         $recordEditIntAPI->setUser($user);
         $recordEditIntAPI->setApproveInstantlyIfAllowed(true);

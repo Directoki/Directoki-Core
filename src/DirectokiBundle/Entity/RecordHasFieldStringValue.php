@@ -4,6 +4,7 @@ namespace DirectokiBundle\Entity;
 
 
 
+use DirectokiBundle\FieldType\FieldTypeString;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -41,7 +42,7 @@ class RecordHasFieldStringValue extends BaseRecordHasFieldValue
      */
     public function setValue(string $value)
     {
-        $this->value = $value;
+        $this->value = FieldTypeString::filterValue($value);
     }
 
 

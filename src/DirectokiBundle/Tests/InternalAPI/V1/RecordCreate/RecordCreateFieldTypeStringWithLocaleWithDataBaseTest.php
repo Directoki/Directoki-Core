@@ -84,7 +84,7 @@ class RecordCreateFieldTypeStringWithLocaleWithDataBaseTest extends BaseTestWith
         $internalAPIDirectory = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource');
 
         $recordCreate = $internalAPIDirectory->getRecordCreate();
-        $recordCreate->getFieldValueEdit('title')->setNewValue('en_GB','A Title');
+        $recordCreate->getFieldValueEdit('title')->setNewValue('en_GB',"A Title   \n\r"); // Cruft at end added specially to make sure it's cleaned up.
         $recordCreate->setComment('Test');
         $recordCreate->setEmail('test@example.com');
         $recordCreate->setApproveInstantlyIfAllowed(false);

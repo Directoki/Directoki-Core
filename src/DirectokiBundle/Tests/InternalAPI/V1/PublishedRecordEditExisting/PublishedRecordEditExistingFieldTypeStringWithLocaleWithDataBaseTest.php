@@ -123,7 +123,7 @@ class PublishedRecordEditExistingFieldTypeStringWithLocaleWithDataBaseTest exten
 
         # Edit
 
-        $recordEditIntAPI->getFieldValueEdit('title')->setNewValue('en_GB' , 'Less Silly Title Please');
+        $recordEditIntAPI->getFieldValueEdit('title')->setNewValue('en_GB' , "Less Silly Title Please   \n\r"); // Cruft at end added specially to make sure it's cleaned up.
         $recordEditIntAPI->setComment('Test');
         $recordEditIntAPI->setEmail('test@example.com');
         $recordEditIntAPI->setApproveInstantlyIfAllowed(false);

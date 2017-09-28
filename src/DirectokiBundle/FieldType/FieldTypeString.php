@@ -102,7 +102,7 @@ class FieldTypeString extends  BaseFieldType {
         $newRecordHasFieldValues = new RecordHasFieldStringValue();
         $newRecordHasFieldValues->setRecord($record);
         $newRecordHasFieldValues->setField($field);
-        $newRecordHasFieldValues->setValue($form->get('value')->getData());
+        $newRecordHasFieldValues->setValue(self::filterValue($form->get('value')->getData()));
         $newRecordHasFieldValues->setCreationEvent($event);
         if ($approve) {
             $newRecordHasFieldValues->setApprovedAt(new \DateTime());
@@ -126,9 +126,9 @@ class FieldTypeString extends  BaseFieldType {
             $currentValue = '';
             if ( $record !== null ) {
                 $latestValueObject = $this->getLatestFieldValue($field, $record);
-                $currentValue = $latestValueObject->getValue();
+                $currentValue = self::filterValue($latestValueObject->getValue());
             }
-            $newValue = $parameterBag->get('field_'.$field->getPublicId().'_value');
+            $newValue = self::filterValue($parameterBag->get('field_'.$field->getPublicId().'_value'));
             if ($newValue != $currentValue) {
                 $newRecordHasFieldValues = new RecordHasFieldStringValue();
                 $newRecordHasFieldValues->setRecord($record);
@@ -146,9 +146,9 @@ class FieldTypeString extends  BaseFieldType {
             $currentValue = '';
             if ( $record !== null ) {
                 $latestValueObject = $this->getLatestFieldValue($field, $record);
-                $currentValue = $latestValueObject->getValue();
+                $currentValue = self::filterValue($latestValueObject->getValue());
             }
-            $newValue = $fieldValueEdit->getNewValue();
+            $newValue = self::filterValue($fieldValueEdit->getNewValue());
             if ($newValue != $currentValue) {
                 $newRecordHasFieldValues = new RecordHasFieldStringValue();
                 $newRecordHasFieldValues->setRecord($record);
@@ -167,7 +167,7 @@ class FieldTypeString extends  BaseFieldType {
     public function parseCSVLineData( Field $field, $fieldConfig, $lineData,  Record $record, Event $creationEvent, $published=false) {
 
         $column = intval($fieldConfig['column']);
-        $data  = $lineData[$column];
+        $data  = self::filterValue($lineData[$column]);
 
         if ($data) {
             $newRecordHasFieldValues = new RecordHasFieldStringValue();
@@ -201,7 +201,7 @@ class FieldTypeString extends  BaseFieldType {
 
     public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
-        $data = $form->get($field->getPublicId())->getData();
+        $data = self::filterValue($form->get($field->getPublicId())->getData());
         if ($data) {
             $newRecordHasFieldValues = new RecordHasFieldStringValue();
             $newRecordHasFieldValues->setRecord($record);
@@ -262,8 +262,9 @@ class FieldTypeString extends  BaseFieldType {
 
     public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
-        $data = $form->get('field_'.$field->getPublicId())->getData();
-        if ($data != $this->getLatestFieldValue($field, $record)->getValue()) {
+        $data = self::filterValue($form->get('field_'.$field->getPublicId())->getData());
+        $currentValue = self::filterValue($this->getLatestFieldValue($field, $record)->getValue());
+        if ($data != $currentValue) {
             $newRecordHasFieldValues = new RecordHasFieldStringValue();
             $newRecordHasFieldValues->setRecord($record);
             $newRecordHasFieldValues->setField($field);
@@ -292,7 +293,7 @@ class FieldTypeString extends  BaseFieldType {
 
     public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
-        $data = $form->get('field_'.$field->getPublicId())->getData();
+        $data = self::filterValue($form->get('field_'.$field->getPublicId())->getData());
         if ($data) {
             $newRecordHasFieldValues = new RecordHasFieldStringValue();
             $newRecordHasFieldValues->setRecord($record);
@@ -306,5 +307,10 @@ class FieldTypeString extends  BaseFieldType {
         }
         return array();
     }
+
+    public static function filterValue($value) {
+        return trim(str_replace("\r","", str_replace("\n","", $value)));
+    }
+
 
 }

@@ -152,7 +152,7 @@ class RecordCreateFieldTypeStringWithDataBaseTest extends BaseTestWithDataBase {
         $internalAPIDirectory = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource');
 
         $recordCreate = $internalAPIDirectory->getRecordCreate();
-        $recordCreate->getFieldValueEdit('title')->setNewValue('A Title');
+        $recordCreate->getFieldValueEdit('title')->setNewValue("A Title   \n\r"); // Cruft at end added specially to make sure it's cleaned up.
         $recordCreate->setComment('Test');
         $recordCreate->setEmail('test@example.com');
         $recordCreate->setApproveInstantlyIfAllowed(true);
@@ -230,7 +230,7 @@ class RecordCreateFieldTypeStringWithDataBaseTest extends BaseTestWithDataBase {
         $internalAPIDirectory = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource');
 
         $recordCreate = $internalAPIDirectory->getRecordCreate();
-        $recordCreate->getFieldValueEdit('title')->setNewValue('A Title');
+        $recordCreate->getFieldValueEdit('title')->setNewValue("A Title   \n\r"); // Cruft at end added specially to make sure it's cleaned up.
         $recordCreate->setComment('Test');
         $recordCreate->setUser($user);
         $recordCreate->setApproveInstantlyIfAllowed(true);
