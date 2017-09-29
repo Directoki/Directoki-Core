@@ -132,8 +132,8 @@ class PublishedRecordEditExistingWithDataBaseTest extends BaseTestWithDataBase {
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
     }
 

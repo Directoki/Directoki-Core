@@ -96,8 +96,10 @@ class RecordCreateFieldTypeStringWithLocaleWithDataBaseTest extends BaseTestWith
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(1, count($records));
+
+        $record = $this->em->getRepository('DirectokiBundle:Record')->findOneBy(array());
+
+        $this->assertTrue($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
         $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);
 

@@ -106,8 +106,8 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $this->assertEquals('DirectokiBundle\InternalAPI\V1\Model\FieldValueMultiSelectEdit', get_class($recordEditIntAPI->getFieldValueEdit('tags')));
         $this->assertEquals(0, count( $recordEditIntAPI->getFieldValueEdit('tags')->getSelectValues()));
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
         # Edit
 
@@ -128,9 +128,8 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(1, count($records));
 
+        $this->assertTrue($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
         $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);
 
@@ -226,8 +225,8 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $this->assertEquals(1, count( $selectValues ));
         $this->assertEquals('PHP', $selectValues[0]->getTitle());
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
         # Edit
 
@@ -248,9 +247,8 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(1, count($records));
 
+        $this->assertTrue($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
         $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);
 
@@ -347,8 +345,8 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $this->assertEquals('DirectokiBundle\InternalAPI\V1\Model\FieldValueMultiSelectEdit', get_class($recordEditIntAPI->getFieldValueEdit('tags')));
         $this->assertEquals(1, count( $recordEditIntAPI->getFieldValueEdit('tags')->getSelectValues()));
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
         # Edit
 
@@ -369,8 +367,8 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
     }
 
@@ -443,8 +441,8 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $this->assertEquals('DirectokiBundle\InternalAPI\V1\Model\FieldValueMultiSelectEdit', get_class($recordEditIntAPI->getFieldValueEdit('tags')));
         $this->assertEquals(0, count( $recordEditIntAPI->getFieldValueEdit('tags')->getSelectValues()));
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
         # Edit ONCE
 
@@ -483,8 +481,8 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
 
         # TEST IT is only there once
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(1, count($records));
+
+        $this->assertTrue($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
 
         $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);

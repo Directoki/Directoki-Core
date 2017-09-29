@@ -86,8 +86,8 @@ class FieldTypeTextWithDataBaseTest extends BaseTestWithDataBase
 
         # TEST, WE HAVE NO MODS
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
 
         # EDIT - Same value, but we try and insert a \r. And it should be rejected.
@@ -104,8 +104,8 @@ class FieldTypeTextWithDataBaseTest extends BaseTestWithDataBase
 
         # TEST, WE *STILL* HAVE NO MODS
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
     }
 

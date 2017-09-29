@@ -60,6 +60,12 @@ class Record
      */
     protected $cachedState;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="cached_needs_admin_attention", type="boolean", nullable=true)
+     */
+    protected $cachedNeedsAdminAttention;
 
     /**
      * @var string
@@ -231,10 +237,21 @@ class Record
         $this->cachedFields = $cachedFields;
     }
 
+    /**
+     * It should be a boolean, but sometimes we get an int? So no type hinting.
+     */
+    public function getCachedNeedsAdminAttention()
+    {
+        return $this->cachedNeedsAdminAttention;
+    }
 
-
-
-
+    /**
+     * It should be a boolean, but sometimes we get an int? So no type hinting.
+     */
+    public function setCachedNeedsAdminAttention($cachedNeedsAdminAttention)
+    {
+        $this->cachedNeedsAdminAttention = $cachedNeedsAdminAttention;
+    }
 
     /**
      * @ORM\PrePersist()

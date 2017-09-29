@@ -34,6 +34,7 @@ class UpdateRecordCache
 
         # Record
         $record->setCachedState($doctrine->getRepository('DirectokiBundle:RecordHasState')->getLatestStateForRecord($record)->getState());
+        $record->setCachedNeedsAdminAttention($doctrine->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record) ? 1 : 0);
 
         $fieldsCache = array();
         foreach($fields as $field) {

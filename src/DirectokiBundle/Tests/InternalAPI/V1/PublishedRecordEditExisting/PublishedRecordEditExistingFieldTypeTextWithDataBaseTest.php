@@ -110,8 +110,8 @@ class PublishedRecordEditExistingFieldTypeTextWithDataBaseTest extends BaseTestW
         $this->assertEquals('Description', $recordEditIntAPI->getFieldValueEdit('description')->getTitle());
         $this->assertEquals('123', $recordEditIntAPI->getFieldValueEdit('description')->getValue());
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
 
         # Edit
@@ -130,8 +130,8 @@ class PublishedRecordEditExistingFieldTypeTextWithDataBaseTest extends BaseTestW
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(1, count($records));
+
+        $this->assertTrue($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
 
         $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);

@@ -111,8 +111,8 @@ class PublishedRecordEditExistingFieldTypeLatLngWithDataBaseTest extends BaseTes
         $this->assertEquals(34.92, $recordEditIntAPI->getFieldValueEdit('map')->getLat());
         $this->assertEquals(-1.76, $recordEditIntAPI->getFieldValueEdit('map')->getLng());
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
 
         # Edit
@@ -132,8 +132,8 @@ class PublishedRecordEditExistingFieldTypeLatLngWithDataBaseTest extends BaseTes
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(1, count($records));
+
+        $this->assertTrue($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
 
         $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);

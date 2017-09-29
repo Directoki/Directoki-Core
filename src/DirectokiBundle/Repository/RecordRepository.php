@@ -4,6 +4,7 @@ namespace DirectokiBundle\Repository;
 
 use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Locale;
+use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasState;
 use DirectokiBundle\RecordsInDirectoryQuery;
 use Doctrine\ORM\EntityRepository;
@@ -70,29 +71,151 @@ class RecordRepository extends EntityRepository {
     }
 
 
+    public function doesRecordNeedAdminAttention(Record $record) {
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldStringValue r'.
+                ' WHERE r.record = :record AND r.refusedAt IS NULL AND r.approvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldStringWithLocaleValue r'.
+                ' WHERE r.record = :record AND r.refusedAt IS NULL AND r.approvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldTextValue r'.
+                ' WHERE r.record = :record AND r.refusedAt IS NULL AND r.approvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldLatLngValue r'.
+                ' WHERE r.record = :record AND r.refusedAt IS NULL AND r.approvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldEmailValue r'.
+                ' WHERE r.record = :record AND r.refusedAt IS NULL AND r.approvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldURLValue r'.
+                ' WHERE r.record = :record AND r.refusedAt IS NULL AND r.approvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldBooleanValue r'.
+                ' WHERE r.record = :record AND r.refusedAt IS NULL AND r.approvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldMultiSelectValue r'.
+                ' WHERE r.record = :record AND r.additionApprovedAt IS NULL AND r.additionRefusedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldMultiSelectValue r'.
+                ' WHERE r.record = :record AND r.removalCreatedAt IS NOT NULL AND r.removalApprovedAt IS NULL AND r.removalRefusedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasState r'.
+                ' WHERE r.record = :record AND r.refusedAt IS NULL AND r.approvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordReport r'.
+                ' WHERE r.record = :record AND r.resolvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+
     public function getRecordsNeedingAttention(Directory $directory) {
 
         return $this->getEntityManager()
             ->createQuery(
                 ' SELECT r FROM DirectokiBundle:Record r'.
-                ' LEFT JOIN r.recordHasFieldStringValues rhfsv WITH rhfsv.refusedAt IS NULL AND rhfsv.approvedAt IS NULL '.
-                ' LEFT JOIN r.recordHasFieldStringWithLocaleValues rhfswlv WITH rhfswlv.refusedAt IS NULL AND rhfswlv.approvedAt IS NULL '.
-                ' LEFT JOIN r.recordHasFieldTextValues rhftv WITH rhftv.refusedAt IS NULL AND rhftv.approvedAt IS NULL '.
-                ' LEFT JOIN r.recordHasFieldLatLngValues rhfllv WITH rhfllv.refusedAt IS NULL AND rhfllv.approvedAt IS NULL '.
-                ' LEFT JOIN r.recordHasFieldEmailValues rhfev WITH rhfev.refusedAt IS NULL AND rhfev.approvedAt IS NULL '.
-                ' LEFT JOIN r.recordHasFieldURLValues rhfuv WITH rhfuv.refusedAt IS NULL AND rhfuv.approvedAt IS NULL '.
-                ' LEFT JOIN r.recordHasFieldBooleanValues rhfbv WITH rhfbv.refusedAt IS NULL AND rhfbv.approvedAt IS NULL '.
-                ' LEFT JOIN r.recordHasFieldMultiSelectValues rhfmsv1 WITH rhfmsv1.additionApprovedAt IS NULL AND rhfmsv1.additionRefusedAt IS NULL '.
-                ' LEFT JOIN r.recordHasFieldMultiSelectValues rhfmsv2 WITH rhfmsv2.removalCreatedAt IS NOT NULL AND rhfmsv2.removalApprovedAt IS NULL AND rhfmsv2.removalRefusedAt IS NULL '.
-                ' LEFT JOIN r.recordHasStates rhs WITH rhs.refusedAt IS NULL AND rhs.approvedAt IS NULL '.
-                ' LEFT JOIN r.recordReports rr WITH rr.resolvedAt IS NULL '.
-                ' WHERE r.directory = :directory AND '.
-                '(rhfsv.id IS NOT NULL OR rhftv.id IS NOT NULL OR rhfbv.id IS NOT NULL OR rhfllv.id IS NOT NULL OR rhfev.id IS NOT NULL OR
-                    rhfuv.id IS NOT NULL OR rhs.id IS NOT NULL OR rr.id IS NOT NULL OR rhfmsv1.id IS NOT NULL OR rhfmsv2.id IS NOT NULL OR rhfswlv.id IS NOT NULL )  '.
-                'GROUP BY r.id '
+                ' WHERE r.directory = :directory AND r.cachedNeedsAdminAttention = :attention '.
+                ' GROUP BY r.id '
             )
-            ->setMaxResults(50)
             ->setParameter('directory', $directory)
+            ->setParameter('attention', true)
             ->getResult();
     }
 

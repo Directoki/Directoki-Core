@@ -117,8 +117,8 @@ class PublishedRecordEditExistingFieldTypeStringWithLocaleWithDataBaseTest exten
         $this->assertEquals('Title', $recordEditIntAPI->getFieldValueEdit('title')->getTitle());
         $this->assertEquals('My Title Rocks', $recordEditIntAPI->getFieldValueEdit('title')->getValue('en_GB'));
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(0, count($records));
+
+        $this->assertFalse($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
 
         # Edit
@@ -137,8 +137,8 @@ class PublishedRecordEditExistingFieldTypeStringWithLocaleWithDataBaseTest exten
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(1, count($records));
+
+        $this->assertTrue($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
 
         $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);

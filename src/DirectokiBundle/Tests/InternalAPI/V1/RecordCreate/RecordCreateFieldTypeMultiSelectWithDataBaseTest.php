@@ -97,12 +97,13 @@ class RecordCreateFieldTypeMultiSelectWithDataBaseTest extends BaseTestWithDataB
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
-        $this->assertEquals(1, count($records));
+        $record = $this->em->getRepository('DirectokiBundle:Record')->findOneBy(array());
+
+        $this->assertTrue($this->em->getRepository('DirectokiBundle:Record')->doesRecordNeedAdminAttention($record));
 
         $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);
 
-        $fieldModerationsNeeded = $fieldType->getModerationsNeeded($field, $records[0]);
+        $fieldModerationsNeeded = $fieldType->getModerationsNeeded($field, $record);
 
         $this->assertEquals(1, count($fieldModerationsNeeded));
 

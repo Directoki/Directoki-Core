@@ -25,7 +25,7 @@ use DirectokiBundle\Tests\BaseTestWithDataBase;
  *  @license 3-clause BSD
  *  @link https://github.com/Directoki/Directoki-Core/blob/master/LICENSE.txt
  */
-class PublishedCreateWithDataBaseTest extends BaseTestWithDataBase {
+class RecordCreateWithDataBaseTest extends BaseTestWithDataBase {
 
 
 
@@ -98,7 +98,7 @@ class PublishedCreateWithDataBaseTest extends BaseTestWithDataBase {
 
         # TEST
 
-        $records = $this->em->getRepository('DirectokiBundle:Record')->getRecordsNeedingAttention($directory);
+        $records = $this->em->getRepository('DirectokiBundle:Record')->findByDirectory($directory);
         $this->assertEquals(0, count($records));
 
 
