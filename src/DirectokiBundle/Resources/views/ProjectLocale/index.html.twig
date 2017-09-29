@@ -40,9 +40,12 @@
 			{%  endfor %}
 			</tbody>
 		</table>
+
+		<a href="{{  path('directoki_project_locale_map', { 'projectId':project.publicId,'localeId':locale.publicId }) }}" class="btn btn-default">Map</a>
 	{% else %}
 		<p>You have no directories</p>
 	{% endif %}
+
 
 
 {%  endblock %}

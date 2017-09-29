@@ -3,6 +3,7 @@
 namespace DirectokiBundle\Repository;
 
 use DirectokiBundle\Entity\Directory;
+use DirectokiBundle\Entity\Project;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -37,6 +38,19 @@ class FieldRepository extends EntityRepository {
              )
              ->setParameter('directory', $directory)
              ->getResult();
+    }
+
+    public function findByProjectAndType(Project $project, $type) {
+        return $this->getEntityManager()
+            ->createQuery(
+                ' SELECT f FROM DirectokiBundle:Field f'.
+                ' JOIN f.directory d '.
+                ' WHERE d.project = :project AND f.fieldType = :type'.
+                ' ORDER BY d.titleSingular ASC, f.sort ASC  '
+            )
+            ->setParameter('project', $project)
+            ->setParameter('type', $type)
+            ->getResult();
     }
 
 }

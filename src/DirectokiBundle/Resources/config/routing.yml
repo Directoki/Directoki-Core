@@ -15,6 +15,14 @@ directoki_project_locale_show:
     path:     /project/{projectId}/locale/{localeId}
     defaults: { _controller: DirectokiBundle:ProjectLocale:index }
 
+directoki_project_locale_map:
+    path:     /project/{projectId}/locale/{localeId}/map
+    defaults: { _controller: DirectokiBundle:ProjectLocale:map }
+
+directoki_project_locale_map_data:
+    path:     /project/{projectId}/locale/{localeId}/map/data
+    defaults: { _controller: DirectokiBundle:ProjectLocale:mapData }
+
 directoki_project_locale_directory_show:
     path:     /project/{projectId}/locale/{localeId}/directory/{directoryId}
     defaults: { _controller: DirectokiBundle:ProjectLocaleDirectory:index }
