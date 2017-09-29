@@ -2,6 +2,7 @@
 
 namespace DirectokiBundle\Controller;
 
+use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\RecordReport;
@@ -85,6 +86,9 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
 
             $doctrine->flush();
 
+            $updateRecordCacheAction = new UpdateRecordCache($this->container);
+            $updateRecordCacheAction->go($this->record);
+
             return array();
 
         } else {
@@ -152,6 +156,9 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
             $doctrine->persist($recordReport);
 
             $doctrine->flush();
+
+            $updateRecordCacheAction = new UpdateRecordCache($this->container);
+            $updateRecordCacheAction->go($this->record);
 
         }
 

@@ -2,6 +2,7 @@
 
 namespace DirectokiBundle\Controller;
 
+use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\RecordReport;
 use DirectokiBundle\FieldType\StringFieldType;
@@ -57,6 +58,9 @@ class AdminProjectDirectoryRecordReportEditController extends AdminProjectDirect
                 $doctrine->persist($this->report);
 
                 $doctrine->flush();
+
+                $action = new UpdateRecordCache($this->container);
+                $action->go($this->record);
 
                 return $this->redirect($this->generateUrl('directoki_admin_project_directory_record_show', array(
                     'projectId'=>$this->project->getPublicId(),

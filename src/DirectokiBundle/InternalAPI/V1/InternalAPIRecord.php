@@ -183,11 +183,8 @@ class InternalAPIRecord
 
             $doctrine->flush();
 
-            if ($approve) {
-                // Update Caches now as the public can see it instantly.
-                $action = new UpdateRecordCache($this->container);
-                $action->go($this->record);
-            }
+            $action = new UpdateRecordCache($this->container);
+            $action->go($this->record);
 
             return new EditRecordResult(true, $approve);
 
@@ -231,6 +228,9 @@ class InternalAPIRecord
             $doctrine->persist($recordReport);
 
             $doctrine->flush();
+
+            $action = new UpdateRecordCache($this->container);
+            $action->go($this->record);
 
             return new ReportRecordResult(true);
         } else {

@@ -2,6 +2,7 @@
 
 namespace DirectokiBundle\Controller;
 
+use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\RecordReport;
 use DirectokiBundle\FieldType\StringFieldType;
 use DirectokiBundle\Form\Type\PublicRecordReportType;
@@ -56,6 +57,9 @@ class ProjectLocaleDirectoryRecordEditController extends ProjectLocaleDirectoryR
                 $doctrine->persist($report);
 
                 $doctrine->flush();
+
+                $action = new UpdateRecordCache($this->container);
+                $action->go($this->record);
 
                 $this->addFlash("notice","Your information has been received and will be moderated - thank you!");
 
@@ -141,6 +145,8 @@ class ProjectLocaleDirectoryRecordEditController extends ProjectLocaleDirectoryR
 
                     $doctrine->flush();
 
+                    $action = new UpdateRecordCache($this->container);
+                    $action->go($this->record);
                 }
 
                 $this->addFlash("notice","Your information has been received and will be moderated - thank you!");

@@ -2,6 +2,7 @@
 
 namespace DirectokiBundle\Controller;
 
+use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\Record;
@@ -98,6 +99,9 @@ class API1ProjectDirectoryEditController extends API1ProjectDirectoryController
             }
 
             $doctrine->flush();
+
+            $updateRecordCacheAction = new UpdateRecordCache($this->container);
+            $updateRecordCacheAction->go($record);
 
             return array('id'=>$record->getPublicId());
         } else {

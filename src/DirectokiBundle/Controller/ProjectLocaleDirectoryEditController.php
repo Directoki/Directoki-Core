@@ -2,6 +2,7 @@
 
 namespace DirectokiBundle\Controller;
 
+use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\Locale;
@@ -94,6 +95,9 @@ class ProjectLocaleDirectoryEditController extends ProjectLocaleDirectoryControl
                     }
 
                     $doctrine->flush();
+
+                    $action = new UpdateRecordCache($this->container);
+                    $action->go($record);
 
                 }
 
