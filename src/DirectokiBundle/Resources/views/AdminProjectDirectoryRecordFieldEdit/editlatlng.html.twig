@@ -26,9 +26,13 @@
 	<form id="ValueForm" class="styled" action="" method="post">
 		{{ form_errors(form) }}
 
-		{{ form_row(form.lat) }}
+		<div id="ValueFormLat">
+			{{ form_row(form.lat) }}
+		</div>
 
-		{{ form_row(form.lng) }}
+		<div id="ValueFormLng">
+			{{ form_row(form.lng) }}
+		</div>
 
 		<div id="fieldLatLngViewMap" style="width: 100%; height: 300px;"></div>
 
@@ -74,8 +78,8 @@
 				marker.setLatLng( e.latlng );
 			}
 
-			$('#ValueForm input[name="latlng[lat]').val(lat);
-			$('#ValueForm input[name="latlng[lng]').val(lng);
+			$('#ValueFormLat input').val(lat);
+			$('#ValueFormLng input').val(lng);
 		}
 
 	</script>
