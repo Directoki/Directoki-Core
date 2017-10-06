@@ -19,6 +19,8 @@ class DirectokiExtension extends Extension
         $processedConfig = $this->processConfiguration(new Configuration(), $configs);
 
         $container->setParameter( 'directoki.read_only', $processedConfig[ 'read_only' ] );
+        $container->setParameter( 'directoki.collect_ip', $processedConfig['collect_ip']);
+        $container->setParameter( 'directoki.collect_user_agent', $processedConfig['collect_user_agent']);
     }
 
 }

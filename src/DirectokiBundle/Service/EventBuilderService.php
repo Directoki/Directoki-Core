@@ -20,6 +20,15 @@ use Symfony\Component\HttpFoundation\Request;
 class EventBuilderService
 {
 
+    protected $container;
+
+    /**
+     * @param $container
+     */
+    public function __construct($container)
+    {
+        $this->container = $container;
+    }
 
     /**
      *
@@ -39,8 +48,12 @@ class EventBuilderService
         $event->setUser($user);
         $event->setComment($comment);
         if ($request) {
-            $event->setIP($request->getClientIp());
-            $event->setUserAgent($request->headers->get('User-Agent'));
+            if (!$this->container->hasParameter('directoki.collect_ip') || $this->container->getParameter('directoki.collect_ip')) {
+                $event->setIP($request->getClientIp());
+            }
+            if (!$this->container->hasParameter('directoki.collect_user_agent') || $this->container->getParameter('directoki.collect_user_agent')) {
+                $event->setUserAgent($request->headers->get('User-Agent'));
+            }
         }
         return $event;
     }

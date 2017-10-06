@@ -8,6 +8,7 @@ services:
         arguments: ["@service_container"]
     directoki_event_builder_service:
         class: DirectokiBundle\Service\EventBuilderService
+        arguments: ["@service_container"]
     directoki.project_voter:
         class: DirectokiBundle\Security\ProjectVoter
         tags:

@@ -25,6 +25,18 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
+        $rootNode
+            ->children()
+            ->booleanNode('collect_ip')->defaultValue(true)
+            ->end()
+        ;
+
+        $rootNode
+            ->children()
+            ->booleanNode('collect_user_agent')->defaultValue(true)
+            ->end()
+        ;
+
         return $treeBuilder;
     }
 
