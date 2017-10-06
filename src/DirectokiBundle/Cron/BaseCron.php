@@ -23,4 +23,8 @@ abstract class BaseCron
 
     }
 
+    function run() {
+
+    }
+
 }

@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  *  @license 3-clause BSD
  *  @link https://github.com/Directoki/Directoki-Core/blob/master/LICENSE.txt
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="DirectokiBundle\Repository\EventRepository")
  * @ORM\Table(name="directoki_event")
  * @ORM\HasLifecycleCallbacks
  */

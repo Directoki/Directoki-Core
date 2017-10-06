@@ -37,6 +37,12 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
+        $rootNode
+            ->children()
+            ->integerNode('delete_information_after_hours')->defaultValue(4320)  // 24*30*6 = 6 months
+            ->end()
+        ;
+
         return $treeBuilder;
     }
 

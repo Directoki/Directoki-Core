@@ -3,6 +3,7 @@
 namespace DirectokiBundle\Command;
 
 
+use DirectokiBundle\Cron\DeleteOldInformation;
 use DirectokiBundle\Cron\ExternalCheck;
 use DirectokiBundle\Cron\UpdateRecordCache;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -39,6 +40,7 @@ class CronCommand extends ContainerAwareCommand
         $cronCommands = array(
             new ExternalCheck($this->getContainer()),
             new UpdateRecordCache($this->getContainer()),
+            new DeleteOldInformation($this->getContainer()),
         );
 
         $doctrine = $this->getContainer()->get('doctrine')->getManager();
@@ -57,6 +59,12 @@ class CronCommand extends ContainerAwareCommand
                 }
             }
         }
+
+        $output->writeln('Misc:');
+        foreach($cronCommands as $cronCommand) {
+            $cronCommand->run($record);
+        }
+
         $output->writeln('Done!');
 
     }
