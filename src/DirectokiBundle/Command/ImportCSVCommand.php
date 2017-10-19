@@ -2,6 +2,7 @@
 
 namespace DirectokiBundle\Command;
 
+use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasState;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
@@ -89,6 +90,7 @@ class ImportCSVCommand extends ContainerAwareCommand
         }
 
 
+        $updateCacheAction = new UpdateRecordCache($this->getContainer());
         $file = fopen($config['general']['file'], 'r');
         while($line = fgetcsv($file)) {
 
@@ -138,6 +140,8 @@ class ImportCSVCommand extends ContainerAwareCommand
             if ($save) {
                 $doctrine->flush();
                 $output->writeln(' ... ... Saved as: '.$record->getPublicId());
+                $updateCacheAction->go($record);
+                $output->writeln(' ... ... ... and cache updated!');
             }
 
         }
