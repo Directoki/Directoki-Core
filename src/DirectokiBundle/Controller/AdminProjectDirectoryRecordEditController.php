@@ -85,6 +85,7 @@ class AdminProjectDirectoryRecordEditController extends AdminProjectDirectoryRec
                 }
             }
 
+            $deletionEventMade = false;
             foreach($doctrine->getRepository('DirectokiBundle:RecordHasState')->findUnmoderatedForRecord($this->record) as $recordHasState) {
                 $key = "state_".$recordHasState->getId();
                 if ($request->request->get($key) == 'approve') {
@@ -97,6 +98,22 @@ class AdminProjectDirectoryRecordEditController extends AdminProjectDirectoryRec
                     $recordHasState->setRefusedAt(new \DateTime());
                     $recordHasState->setRefusalEvent($event);
                     $doctrine->persist($recordHasState);
+                    $anythingToSave = true;
+                } else if ($request->request->get($key) == 'reject_and_delete') {
+                    $recordHasState->setRefusedAt(new \DateTime());
+                    $recordHasState->setRefusalEvent($event);
+                    $doctrine->persist($recordHasState);
+
+                    if (!$deletionEventMade) {
+                        $recordHasStateDelete = new RecordHasState();
+                        $recordHasStateDelete->setRecord($this->record);
+                        $recordHasStateDelete->setState(RecordHasState::STATE_DELETED);
+                        $recordHasStateDelete->setCreationEvent($event);
+                        $recordHasStateDelete->setApprovalEvent($event);
+                        $doctrine->persist($recordHasStateDelete);
+                        $deletionEventMade = true;
+                    }
+
                     $anythingToSave = true;
                 }
             }
@@ -141,6 +158,7 @@ class AdminProjectDirectoryRecordEditController extends AdminProjectDirectoryRec
             'fieldModerationsNeeded' => $fieldModerationsNeeded,
             'fieldTypeService' => $this->container->get('directoki_field_type_service'),
             'recordHasStates' => $recordHasStates,
+            'state' => $doctrine->getRepository('DirectokiBundle:RecordHasState')->getLatestStateForRecord($this->record),
         ));
 
     }
