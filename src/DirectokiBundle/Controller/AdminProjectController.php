@@ -124,6 +124,17 @@ class AdminProjectController extends Controller
     }
 
 
+    public function settingsAction(string $projectId)
+    {
+        // build
+        $this->build($projectId);
+        //data
+        return $this->render('DirectokiBundle:AdminProject:settings.html.twig', array(
+            'project' => $this->project,
+        ));
+    }
+
+
 
     public function localeAction(string $projectId)
     {
