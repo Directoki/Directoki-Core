@@ -98,6 +98,35 @@ class API1ProjectController extends Controller
 
     }
 
+    public function localesJSONAction(string $projectId, Request $request)
+    {
 
+        // build
+        $this->build($projectId, $request);
+        //data
+
+        $doctrine = $this->getDoctrine()->getManager();
+        $repo = $doctrine->getRepository('DirectokiBundle:Locale');
+
+        $out = array(
+            'project'=>array(
+                'id'=>$this->project->getPublicId(),
+                'title'=>$this->project->getTitle(),
+            ),
+            'locales'=>array(),
+        );
+
+        foreach($repo->findByProject($this->project) as $locale) {
+            $out['locales'][] = array(
+                'id' => $locale->getPublicId(),
+                'title' => $locale->getTitle(),
+            );
+        }
+
+        $response = new Response(json_encode($out));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+
+    }
 
 }

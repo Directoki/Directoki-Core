@@ -221,6 +221,9 @@ directoki_api1_project_directories_json:
     path:     /api1/project/{projectId}/directories.json
     defaults: { _controller: DirectokiBundle:API1Project:directoriesJSON }
 
+directoki_api1_project_locales_json:
+    path:     /api1/project/{projectId}/locales.json
+    defaults: { _controller: DirectokiBundle:API1Project:localesJSON }
 
 directoki_api1_project_directory_show_json:
     path:     /api1/project/{projectId}/directory/{directoryId}/index.json
