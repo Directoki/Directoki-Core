@@ -178,6 +178,11 @@ class FieldTypeEmail extends  BaseFieldType {
         $data  = $lineData[$column];
 
         if ($data) {
+
+            if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
+                throw new DataValidationException('Please set a valid email!');
+            }
+
             $newRecordHasFieldValues = new RecordHasFieldEmailValue();
             $newRecordHasFieldValues->setRecord($record);
             $newRecordHasFieldValues->setField($field);
@@ -213,7 +218,7 @@ class FieldTypeEmail extends  BaseFieldType {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data) {
 
-            if ($data && !filter_var($data, FILTER_VALIDATE_EMAIL)) {
+            if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
                 $form->get('field_'.$field->getPublicId())->addError(new FormError('Please enter a valid email address'));
                 throw new DataValidationException();
             }
