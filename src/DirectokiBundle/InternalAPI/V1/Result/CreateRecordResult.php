@@ -54,15 +54,15 @@ class CreateRecordResult
         return $this->id;
     }
 
-    public function hasFieldErrors() {
+    public function hasFieldErrors():bool {
         return (boolean)$this->fieldErrors;
     }
 
-    public function hasFieldErrorsForField($publicId) {
+    public function hasFieldErrorsForField(string $publicId):bool {
         return isset($this->fieldErrors[$publicId]) && count($this->fieldErrors[$publicId]);
     }
 
-    public function getFieldErrorsForField($publicId) {
+    public function getFieldErrorsForField(string $publicId):array {
         return $this->fieldErrors[$publicId];
     }
 

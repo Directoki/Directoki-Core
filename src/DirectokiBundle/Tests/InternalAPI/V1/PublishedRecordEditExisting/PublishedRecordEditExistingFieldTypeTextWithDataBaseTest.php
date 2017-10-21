@@ -123,6 +123,7 @@ class PublishedRecordEditExistingFieldTypeTextWithDataBaseTest extends BaseTestW
 
         $result = $internalAPIRecord->savePublishedEdit($recordEditIntAPI);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
 

@@ -123,6 +123,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
 
         $result = $internalAPIRecord->savePublishedEdit($recordEditIntAPI);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
 
@@ -242,6 +243,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
 
         $result = $internalAPIRecord->savePublishedEdit($recordEditIntAPI);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
 
@@ -459,6 +461,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         // first time it saves
         $result = $internalAPIRecord->savePublishedEdit($recordEditIntAPI);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
         # Edit TWICE

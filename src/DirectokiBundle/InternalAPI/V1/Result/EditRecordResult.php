@@ -15,12 +15,17 @@ class EditRecordResult
 
     protected $approved;
 
+    protected $fieldErrors;
+
+
     function __construct(
         $success = false,
-        $approved = false
+        $approved = false,
+        $fieldErrors = array()
     ) {
         $this->success = $success;
         $this->approved = $approved;
+        $this->fieldErrors = $fieldErrors;
     }
 
     /**
@@ -37,6 +42,18 @@ class EditRecordResult
     public function isApproved()
     {
         return $this->approved;
+    }
+
+    public function hasFieldErrors():bool {
+        return (boolean)$this->fieldErrors;
+    }
+
+    public function hasFieldErrorsForField(string $publicId):bool {
+        return isset($this->fieldErrors[$publicId]) && count($this->fieldErrors[$publicId]);
+    }
+
+    public function getFieldErrorsForField(string $publicId):array {
+        return $this->fieldErrors[$publicId];
     }
 
 

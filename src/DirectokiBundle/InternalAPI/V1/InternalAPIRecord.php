@@ -152,20 +152,29 @@ class InternalAPIRecord
         );
 
         $fieldDataToSave = array();
+        $dataValidationErrors = array();
         foreach ( $recordEdit->getFieldValueEdits() as $fieldEdit ) {
 
             $field = $doctrine->getRepository('DirectokiBundle:Field')->findOneBy(array('directory'=>$this->directory, 'publicId'=>$fieldEdit->getPublicID()));
 
             $fieldType = $this->container->get( 'directoki_field_type_service' )->getByField( $field );
 
-            $fieldDataToSave = array_merge(
-                $fieldDataToSave,
-                $fieldType->processInternalAPI1Record($fieldEdit, $this->directory, $this->record, $field, $event, $approve)
-            );
+            try {
+                $fieldDataToSave = array_merge(
+                    $fieldDataToSave,
+                    $fieldType->processInternalAPI1Record($fieldEdit, $this->directory, $this->record, $field, $event, $approve)
+                );
+            } catch (\DirectokiBundle\Exception\DataValidationException $dataValidationError) {
+                $dataValidationErrors[$fieldEdit->getPublicID()] = array(new \DirectokiBundle\InternalAPI\V1\Exception\DataValidationException($dataValidationError->getMessage()));
+            }
 
         }
 
-        if ($fieldDataToSave) {
+        if ($dataValidationErrors) {
+
+            return new EditRecordResult(false, false, $dataValidationErrors);
+
+        } else if ($fieldDataToSave) {
 
             $email = $recordEdit->getEmail();
             if ($email) {

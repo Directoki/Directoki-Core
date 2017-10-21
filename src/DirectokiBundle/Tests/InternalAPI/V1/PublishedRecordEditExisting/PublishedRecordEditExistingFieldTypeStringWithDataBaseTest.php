@@ -121,6 +121,7 @@ class PublishedRecordEditExistingFieldTypeStringWithDataBaseTest extends BaseTes
 
         $result = $internalAPIRecord->savePublishedEdit($recordEditIntAPI);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
 
@@ -236,6 +237,7 @@ class PublishedRecordEditExistingFieldTypeStringWithDataBaseTest extends BaseTes
 
         $result = $internalAPIRecord->savePublishedEdit($recordEditIntAPI);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
 
@@ -350,6 +352,7 @@ class PublishedRecordEditExistingFieldTypeStringWithDataBaseTest extends BaseTes
 
         $result = $internalAPIRecord->savePublishedEdit($recordEditIntAPI);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertTrue($result->isApproved());
 
 
