@@ -93,6 +93,7 @@ class RecordCreateFieldTypeMultiSelectWithDataBaseTest extends BaseTestWithDataB
         $result = $internalAPIDirectory->saveRecordCreate($recordCreate);
         $this->assertTrue($result->getSuccess());
         $this->assertFalse($result->isApproved());
+        $this->assertFalse($result->hasFieldErrors());
 
 
         # TEST

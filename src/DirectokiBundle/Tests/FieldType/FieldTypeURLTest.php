@@ -6,7 +6,7 @@ namespace DirectokiBundle\Tests\FieldType;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Field;
 use DirectokiBundle\Entity\Record;
-use DirectokiBundle\FieldType\FieldTypeEmail;
+use DirectokiBundle\FieldType\FieldTypeURL;
 use DirectokiBundle\Tests\BaseTest;
 
 
@@ -29,11 +29,11 @@ class FieldTypeURLTest extends BaseTest
         $record = new Record();
         $event = new Event();
         $publish = false;
-        $fieldType = new FieldTypeEmail($this->container);
+        $fieldType = new FieldTypeURL($this->container);
         $result = $fieldType->parseCSVLineData($field, $fieldConfig, $lineData, $record, $event, $publish);
         $this->assertEquals('https://www.google.co.uk', $result->getDebugOutput());
         $this->assertEquals(1, count($result->getEntitiesToSave()));
-        $this->assertEquals("DirectokiBundle\Entity\RecordHasFieldEmailValue", get_class($result->getEntitiesToSave()[0]));
+        $this->assertEquals("DirectokiBundle\Entity\RecordHasFieldURLValue", get_class($result->getEntitiesToSave()[0]));
         $this->assertEquals('https://www.google.co.uk', $result->getEntitiesToSave()[0]->getValue());
     }
 

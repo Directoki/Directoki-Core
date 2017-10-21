@@ -8,6 +8,7 @@ use DirectokiBundle\Entity\Field;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\Tests\BaseTest;
+use DirectokiBundle\Exception\DataValidationException;
 
 
 /**
@@ -35,6 +36,24 @@ class FieldTypeEmailTest extends BaseTest
         $this->assertEquals(1, count($result->getEntitiesToSave()));
         $this->assertEquals("DirectokiBundle\Entity\RecordHasFieldEmailValue", get_class($result->getEntitiesToSave()[0]));
         $this->assertEquals('cats@example.com', $result->getEntitiesToSave()[0]->getValue());
+    }
+
+    function testParseCSVLineDataTestNotAnEmailTest() {
+        $field = new Field();
+        $fieldConfig = array(
+            'column'=>0,
+        );
+        $lineData = array(
+            'catsExampleWoof',
+            'dogs@example.com'
+        );
+        $record = new Record();
+        $event = new Event();
+        $publish = false;
+        $fieldType = new FieldTypeEmail($this->container);
+        $this->expectException(DataValidationException::class);
+        $result = $fieldType->parseCSVLineData($field, $fieldConfig, $lineData, $record, $event, $publish);
+
     }
 
 }

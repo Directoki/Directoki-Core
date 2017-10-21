@@ -9,6 +9,7 @@ use DirectokiBundle\Entity\Locale;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasFieldEmailValue;
 use DirectokiBundle\Entity\Field;
+use DirectokiBundle\Exception\DataValidationException;
 use DirectokiBundle\LocaleMode\BaseLocaleMode;
 use Symfony\Component\Form\Form;
 use DirectokiBundle\InternalAPI\V1\Model\BaseFieldValue;
@@ -19,6 +20,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\FormError;
 
 
 /**
@@ -88,11 +90,17 @@ class FieldTypeEmail extends  BaseFieldType {
 
         // TODO see if value has changed before saving!! Can return array() if not.
 
+        $newValue = $form->get('value')->getData();
+
+        if ($newValue && !filter_var($newValue, FILTER_VALIDATE_EMAIL)) {
+            $form->get('value')->addError(new FormError('Please enter a valid email address'));
+            throw new DataValidationException();
+        }
 
         $newRecordHasFieldValues = new RecordHasFieldEmailValue();
         $newRecordHasFieldValues->setRecord($record);
         $newRecordHasFieldValues->setField($field);
-        $newRecordHasFieldValues->setValue($form->get('value')->getData());
+        $newRecordHasFieldValues->setValue($newValue);
         $newRecordHasFieldValues->setCreationEvent($event);
         if ($approve) {
             $newRecordHasFieldValues->setApprovedAt(new \DateTime());
@@ -123,6 +131,9 @@ class FieldTypeEmail extends  BaseFieldType {
             }
             $newValue = $parameterBag->get('field_'.$field->getPublicId().'_value');
             if ($newValue != $currentValue) {
+                if ($newValue && !filter_var($newValue, FILTER_VALIDATE_EMAIL)) {
+                    throw new DataValidationException('Please set a valid email!');
+                }
                 $newRecordHasFieldValues = new RecordHasFieldEmailValue();
                 $newRecordHasFieldValues->setRecord($record);
                 $newRecordHasFieldValues->setField($field);
@@ -144,6 +155,9 @@ class FieldTypeEmail extends  BaseFieldType {
             }
             $newValue = $fieldValueEdit->getNewValue();
             if ($newValue != $currentValue) {
+                if ($newValue && !filter_var($newValue, FILTER_VALIDATE_EMAIL)) {
+                    throw new DataValidationException('Please set a valid email!');
+                }
                 $newRecordHasFieldValues = new RecordHasFieldEmailValue();
                 $newRecordHasFieldValues->setRecord($record);
                 $newRecordHasFieldValues->setField($field);
@@ -164,6 +178,11 @@ class FieldTypeEmail extends  BaseFieldType {
         $data  = $lineData[$column];
 
         if ($data) {
+
+            if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
+                throw new DataValidationException('Please set a valid email!');
+            }
+
             $newRecordHasFieldValues = new RecordHasFieldEmailValue();
             $newRecordHasFieldValues->setRecord($record);
             $newRecordHasFieldValues->setField($field);
@@ -188,7 +207,7 @@ class FieldTypeEmail extends  BaseFieldType {
 
     public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
     {
-        $formBuilderInterface->add($field->getPublicId(), EmailType::class, array(
+        $formBuilderInterface->add('field_'.$field->getPublicId(), EmailType::class, array(
             'required' => false,
             'label'=>$field->getTitle(),
         ));
@@ -196,8 +215,14 @@ class FieldTypeEmail extends  BaseFieldType {
 
     public function processNewRecordForm(Field $field, Record $record,Form $form, Event $creationEvent, $published = false)
     {
-        $data = $form->get($field->getPublicId())->getData();
+        $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data) {
+
+            if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
+                $form->get('field_'.$field->getPublicId())->addError(new FormError('Please enter a valid email address'));
+                throw new DataValidationException();
+            }
+
             $newRecordHasFieldValues = new RecordHasFieldEmailValue();
             $newRecordHasFieldValues->setRecord($record);
             $newRecordHasFieldValues->setField($field);
@@ -256,6 +281,10 @@ class FieldTypeEmail extends  BaseFieldType {
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data != $this->getLatestFieldValue($field, $record)->getValue()) {
+            if ($data && !filter_var($data, FILTER_VALIDATE_EMAIL)) {
+                $form->get('field_'.$field->getPublicId())->addError(new FormError('Please enter a valid email address'));
+                throw new DataValidationException();
+            }
             $newRecordHasFieldValues = new RecordHasFieldEmailValue();
             $newRecordHasFieldValues->setRecord($record);
             $newRecordHasFieldValues->setField($field);
@@ -286,6 +315,10 @@ class FieldTypeEmail extends  BaseFieldType {
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data) {
+            if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
+                $form->get('field_'.$field->getPublicId())->addError(new FormError('Please enter a valid email address'));
+                throw new DataValidationException();
+            }
             $newRecordHasFieldValues = new RecordHasFieldEmailValue();
             $newRecordHasFieldValues->setRecord($record);
             $newRecordHasFieldValues->setField($field);

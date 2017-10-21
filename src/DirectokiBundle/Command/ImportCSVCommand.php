@@ -5,6 +5,7 @@ namespace DirectokiBundle\Command;
 use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasState;
+use DirectokiBundle\Exception\DataValidationException;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -123,17 +124,24 @@ class ImportCSVCommand extends ContainerAwareCommand
             }
 
             foreach($fields as $fieldName=>$fieldData) {
-                $return = $fieldData['fieldType']->parseCSVLineData($fieldData['field'], $fieldData['config'], $line, $record, $event, $publish);
-                if ($return) {
+                try {
+                    $return = $fieldData['fieldType']->parseCSVLineData($fieldData['field'], $fieldData['config'], $line, $record, $event, $publish);
+                    if ($return) {
 
-                    $output->writeln(' ... '. $fieldName . ' : ' . $return->getDebugOutput());
+                        $output->writeln(' ... ' . $fieldName . ' : ' . $return->getDebugOutput());
 
-                    if ($save) {
-                        foreach ( $return->getEntitiesToSave() as $entityToSave ) {
-                            $doctrine->persist($entityToSave);
+                        if ($save) {
+                            foreach ($return->getEntitiesToSave() as $entityToSave) {
+                                $doctrine->persist($entityToSave);
+                            }
                         }
-                    }
 
+                    }
+                } catch (DataValidationException $dataValidationException) {
+
+                    $output->writeln(' ... ' . $fieldName . ' ERROR : ' . $dataValidationException->getMessage());
+                    $output->writeln('ERROR! EXITING NOW!');
+                    return;
                 }
             }
 

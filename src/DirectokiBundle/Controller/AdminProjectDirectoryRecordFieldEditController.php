@@ -4,6 +4,7 @@ namespace DirectokiBundle\Controller;
 
 use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\Event;
+use DirectokiBundle\Exception\DataValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -46,24 +47,28 @@ class AdminProjectDirectoryRecordFieldEditController extends AdminProjectDirecto
                     $form->get('createdComment')->getData()
                 );
 
-                $recordHasFieldValuesToSave = $fieldType->getEditFieldFormNewRecords($this->field, $this->record, $event, $form, $this->getUser(), $form->get('approve')->getData());
-                // There might be nothing to save!
-                if ($recordHasFieldValuesToSave) {
-                    $doctrine->persist($event);
-                    foreach($recordHasFieldValuesToSave as $recordHasFieldValueToSave) {
-                        $doctrine->persist( $recordHasFieldValueToSave );
+                try {
+                    $recordHasFieldValuesToSave = $fieldType->getEditFieldFormNewRecords($this->field, $this->record, $event, $form, $this->getUser(), $form->get('approve')->getData());
+                    // There might be nothing to save!
+                    if ($recordHasFieldValuesToSave) {
+                        $doctrine->persist($event);
+                        foreach ($recordHasFieldValuesToSave as $recordHasFieldValueToSave) {
+                            $doctrine->persist($recordHasFieldValueToSave);
+                        }
+                        $doctrine->flush();
+
+                        $updateRecordCacheAction = new UpdateRecordCache($this->container);
+                        $updateRecordCacheAction->go($this->record);
                     }
-                    $doctrine->flush();
 
-                    $updateRecordCacheAction = new UpdateRecordCache($this->container);
-                    $updateRecordCacheAction->go($this->record);
+                    return $this->redirect($this->generateUrl('directoki_admin_project_directory_record_show', array(
+                        'projectId' => $this->project->getPublicId(),
+                        'directoryId' => $this->directory->getPublicId(),
+                        'recordId' => $this->record->getPublicId(),
+                    )));
+                } catch (DataValidationException $dataValidationException) {
+                    // Do nothing; the form will display the message fine.
                 }
-
-                return $this->redirect($this->generateUrl('directoki_admin_project_directory_record_show', array(
-                    'projectId'=>$this->project->getPublicId(),
-                    'directoryId'=>$this->directory->getPublicId(),
-                    'recordId'=>$this->record->getPublicId(),
-                )));
             }
         }
 

@@ -8,6 +8,7 @@ use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\Locale;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasState;
+use DirectokiBundle\Exception\DataValidationException;
 use DirectokiBundle\Form\Type\PublicRecordNewType;
 use DirectokiBundle\RecordsInDirectoryQuery;
 use DirectokiBundle\Security\ProjectVoter;
@@ -63,51 +64,58 @@ class ProjectLocaleDirectoryEditController extends ProjectLocaleDirectoryControl
                 $record->setCachedState(RecordHasState::STATE_DRAFT);
 
                 $fieldDataToSave = array();
+                $anyDataValidationErrors = false;
                 foreach ( $fields as $field ) {
 
                     $fieldType = $this->container->get( 'directoki_field_type_service' )->getByField( $field );
 
-                    $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processPublicNewRecordForm($field, $record, $form, $event, false));
+                    try {
+                        $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processPublicNewRecordForm($field, $record, $form, $event, false));
+                    } catch (DataValidationException $e) {
+                        $anyDataValidationErrors = true;
+                    }
 
                 }
 
-                if ($fieldDataToSave) {
+                if (!$anyDataValidationErrors) {
+                    if ($fieldDataToSave) {
 
-                    if (!$this->getUser()) {
-                        $email = trim($form->get('email')->getData());
-                        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                            $event->setContact($doctrine->getRepository('DirectokiBundle:Contact')->findOrCreateByEmail($this->project, $email));
+                        if (!$this->getUser()) {
+                            $email = trim($form->get('email')->getData());
+                            if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                                $event->setContact($doctrine->getRepository('DirectokiBundle:Contact')->findOrCreateByEmail($this->project, $email));
+                            }
                         }
+
+                        $doctrine->persist($event);
+                        $doctrine->persist($record);
+
+                        // Also record a request to publish this record but don't approve it - moderator will do that.
+                        $recordHasState = new RecordHasState();
+                        $recordHasState->setRecord($record);
+                        $recordHasState->setState(RecordHasState::STATE_PUBLISHED);
+                        $recordHasState->setCreationEvent($event);
+                        $doctrine->persist($recordHasState);
+
+                        foreach ($fieldDataToSave as $entityToSave) {
+                            $doctrine->persist($entityToSave);
+                        }
+
+                        $doctrine->flush();
+
+                        $action = new UpdateRecordCache($this->container);
+                        $action->go($record);
+
                     }
 
-                    $doctrine->persist($event);
-                    $doctrine->persist($record);
+                    $this->addFlash("notice", "Your information has been received and will be moderated - thank you!");
 
-                    // Also record a request to publish this record but don't approve it - moderator will do that.
-                    $recordHasState = new RecordHasState();
-                    $recordHasState->setRecord($record);
-                    $recordHasState->setState(RecordHasState::STATE_PUBLISHED);
-                    $recordHasState->setCreationEvent($event);
-                    $doctrine->persist($recordHasState);
-
-                    foreach($fieldDataToSave as $entityToSave) {
-                        $doctrine->persist($entityToSave);
-                    }
-
-                    $doctrine->flush();
-
-                    $action = new UpdateRecordCache($this->container);
-                    $action->go($record);
-
+                    return $this->redirect($this->generateUrl('directoki_project_locale_directory_show', array(
+                        'projectId' => $this->project->getPublicId(),
+                        'localeId' => $this->locale->getPublicId(),
+                        'directoryId' => $this->directory->getPublicId(),
+                    )));
                 }
-
-                $this->addFlash("notice","Your information has been received and will be moderated - thank you!");
-
-                return $this->redirect($this->generateUrl('directoki_project_locale_directory_show', array(
-                    'projectId'=>$this->project->getPublicId(),
-                    'localeId'=>$this->locale->getPublicId(),
-                    'directoryId'=>$this->directory->getPublicId(),
-                )));
             }
         }
 

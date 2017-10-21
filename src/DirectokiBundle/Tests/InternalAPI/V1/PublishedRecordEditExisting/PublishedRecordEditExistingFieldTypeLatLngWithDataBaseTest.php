@@ -125,6 +125,7 @@ class PublishedRecordEditExistingFieldTypeLatLngWithDataBaseTest extends BaseTes
 
         $result = $internalAPIRecord->savePublishedEdit($recordEditIntAPI);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
 

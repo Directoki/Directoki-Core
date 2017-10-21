@@ -83,8 +83,8 @@ class RecordCreateFieldTypeEmailWithDataBaseTest extends BaseTestWithDataBase
         $result = $internalAPIDirectory->saveRecordCreate($recordCreate);
         $this->assertTrue($result->getSuccess());
         $this->assertFalse($result->isApproved());
-
-
+        $this->assertFalse($result->hasFieldErrors());
+        $this->assertFalse($result->hasFieldErrorsForField('email'));
 
 
         # TEST
@@ -106,6 +106,67 @@ class RecordCreateFieldTypeEmailWithDataBaseTest extends BaseTestWithDataBase
         $this->assertEquals('bob@example.com', $fieldModerationNeeded->getValue());
 
 
+    }
+
+    public function testNotAnEmail() {
+
+        $user = new User();
+        $user->setEmail('test1@example.com');
+        $user->setPassword('password');
+        $user->setUsername('test1');
+        $this->em->persist($user);
+
+        $project = new Project();
+        $project->setTitle('test1');
+        $project->setPublicId('test1');
+        $project->setOwner($user);
+        $this->em->persist($project);
+
+        $event = new Event();
+        $event->setProject($project);
+        $event->setUser($user);
+        $this->em->persist($event);
+
+        $directory = new Directory();
+        $directory->setPublicId('resource');
+        $directory->setTitleSingular('Resource');
+        $directory->setTitlePlural('Resources');
+        $directory->setProject($project);
+        $directory->setCreationEvent($event);
+        $this->em->persist($directory);
+
+        $field = new Field();
+        $field->setTitle('Email');
+        $field->setPublicId('email');
+        $field->setDirectory($directory);
+        $field->setFieldType(FieldTypeEmail::FIELD_TYPE_INTERNAL);
+        $field->setCreationEvent($event);
+        $this->em->persist($field);
+
+
+        $this->em->flush();
+
+
+
+        # CREATE
+        $internalAPI = new InternalAPI($this->container);
+
+        $internalAPIDirectory = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource');
+
+        $recordCreate = $internalAPIDirectory->getRecordCreate();
+        $recordCreate->getFieldValueEdit('email')->setNewValue('bobReallyDoesNotHaveAClueWhatEnEmailAddressIS.com');
+        $recordCreate->setComment('Test');
+        $recordCreate->setEmail('test@example.com');
+        $recordCreate->setApproveInstantlyIfAllowed(false);
+
+        $result = $internalAPIDirectory->saveRecordCreate($recordCreate);
+        $this->assertFalse($result->getSuccess());
+        $this->assertTrue($result->hasFieldErrors());
+        $this->assertTrue($result->hasFieldErrorsForField('email'));
+
+        $errors = $result->getFieldErrorsForField('email');
+        $this->assertEquals(1, count($errors));
+        $this->assertEquals('Please set a valid email!', $errors[0]->getMessage());
     }
 
 
