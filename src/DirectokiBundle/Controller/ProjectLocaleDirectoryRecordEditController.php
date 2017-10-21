@@ -4,7 +4,7 @@ namespace DirectokiBundle\Controller;
 
 use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\RecordReport;
-use DirectokiBundle\Exception\DataValidationError;
+use DirectokiBundle\Exception\DataValidationException;
 use DirectokiBundle\FieldType\StringFieldType;
 use DirectokiBundle\Form\Type\PublicRecordReportType;
 use DirectokiBundle\Form\Type\PublicRecordEditType;
@@ -128,7 +128,7 @@ class ProjectLocaleDirectoryRecordEditController extends ProjectLocaleDirectoryR
 
                     try {
                         $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processPublicEditRecordForm($field, $this->record, $form, $event, false));
-                    } catch (DataValidationError $dataValidationError) {
+                    } catch (DataValidationException $dataValidationError) {
                         $anyDataValidationErrors = true;
                     }
                 }

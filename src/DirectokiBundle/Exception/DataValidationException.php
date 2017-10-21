@@ -9,7 +9,7 @@ namespace DirectokiBundle\Exception;
  *  @link https://github.com/Directoki/Directoki-Core/blob/master/LICENSE.txt
  *
  */
-class  DataValidationError extends \Exception
+class  DataValidationException extends \Exception
 {
 
 }

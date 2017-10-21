@@ -7,7 +7,7 @@ use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Project;
 
 use DirectokiBundle\Entity\RecordHasState;
-use DirectokiBundle\Exception\DataValidationError;
+use DirectokiBundle\Exception\DataValidationException;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
@@ -228,7 +228,7 @@ class InternalAPIDirectory
                     $fieldDataToSave,
                     $fieldType->processInternalAPI1Record($fieldEdit, $this->directory, null, $field, $event, $approve)
                 );
-            } catch (\DirectokiBundle\Exception\DataValidationError $dataValidationError) {
+            } catch (\DirectokiBundle\Exception\DataValidationException $dataValidationError) {
                 $dataValidationErrors[$fieldEdit->getPublicID()] = new \DirectokiBundle\InternalAPI\V1\Exception\DataValidationError($dataValidationError->getMessage());
             }
 

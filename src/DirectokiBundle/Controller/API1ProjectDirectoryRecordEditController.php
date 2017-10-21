@@ -6,7 +6,7 @@ use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\RecordReport;
-use DirectokiBundle\Exception\DataValidationError;
+use DirectokiBundle\Exception\DataValidationException;
 use DirectokiBundle\FieldType\StringFieldType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -67,7 +67,7 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
 
             try {
                 $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processAPI1Record($field, $this->record, $parameterBag, $event));
-            } catch (DataValidationError $dataValidationError) {
+            } catch (DataValidationException $dataValidationError) {
                 $dataValidationErrors[$field->getPublicId()] = $dataValidationError;
             }
         }

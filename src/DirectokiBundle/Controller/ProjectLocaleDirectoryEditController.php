@@ -8,7 +8,7 @@ use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\Locale;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasState;
-use DirectokiBundle\Exception\DataValidationError;
+use DirectokiBundle\Exception\DataValidationException;
 use DirectokiBundle\Form\Type\PublicRecordNewType;
 use DirectokiBundle\RecordsInDirectoryQuery;
 use DirectokiBundle\Security\ProjectVoter;
@@ -71,7 +71,7 @@ class ProjectLocaleDirectoryEditController extends ProjectLocaleDirectoryControl
 
                     try {
                         $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processPublicNewRecordForm($field, $record, $form, $event, false));
-                    } catch (DataValidationError $e) {
+                    } catch (DataValidationException $e) {
                         $anyDataValidationErrors = true;
                     }
 
