@@ -91,6 +91,7 @@ class RecordCreateFieldTypeStringWithLocaleWithDataBaseTest extends BaseTestWith
 
         $result = $internalAPIDirectory->saveRecordCreate($recordCreate);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
 

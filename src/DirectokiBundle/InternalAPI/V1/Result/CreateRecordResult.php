@@ -16,14 +16,18 @@ class CreateRecordResult
 
     protected $id;
 
+    protected $fieldErrors;
+
     function __construct(
         $success = false,
         $approved = false,
-        $id = null
+        $id = null,
+        $fieldErrors = array()
     ) {
         $this->success = $success;
         $this->approved = $approved;
         $this->id = $id;
+        $this->fieldErrors = $fieldErrors;
     }
 
     /**
@@ -50,6 +54,16 @@ class CreateRecordResult
         return $this->id;
     }
 
+    public function hasFieldErrors() {
+        return (boolean)$this->fieldErrors;
+    }
 
+    public function hasFieldErrorsForField($publicId) {
+        return isset($this->fieldErrors[$publicId]) && count($this->fieldErrors[$publicId]);
+    }
+
+    public function getFieldErrorsForField($publicId) {
+        return $this->fieldErrors[$publicId];
+    }
 
 }

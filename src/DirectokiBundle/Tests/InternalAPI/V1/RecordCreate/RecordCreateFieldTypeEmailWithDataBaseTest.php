@@ -83,8 +83,8 @@ class RecordCreateFieldTypeEmailWithDataBaseTest extends BaseTestWithDataBase
         $result = $internalAPIDirectory->saveRecordCreate($recordCreate);
         $this->assertTrue($result->getSuccess());
         $this->assertFalse($result->isApproved());
-
-
+        $this->assertFalse($result->hasFieldErrors());
+        $this->assertFalse($result->hasFieldErrorsForField('email'));
 
 
         # TEST
@@ -161,11 +161,12 @@ class RecordCreateFieldTypeEmailWithDataBaseTest extends BaseTestWithDataBase
 
         $result = $internalAPIDirectory->saveRecordCreate($recordCreate);
         $this->assertFalse($result->getSuccess());
+        $this->assertTrue($result->hasFieldErrors());
+        $this->assertTrue($result->hasFieldErrorsForField('email'));
 
-
-        // TODO MUST CHECK WE CAN READ AN ERROR!!!!!
-
-
+        $errors = $result->getFieldErrorsForField('email');
+        $this->assertEquals(1, count($errors));
+        $this->assertEquals('Please set a valid email!', $errors[0]->getMessage());
     }
 
 

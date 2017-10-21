@@ -78,6 +78,7 @@ class RecordCreateFieldTypeStringWithDataBaseTest extends BaseTestWithDataBase {
 
         $result = $internalAPIDirectory->saveRecordCreate($recordCreate);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
 
@@ -160,6 +161,7 @@ class RecordCreateFieldTypeStringWithDataBaseTest extends BaseTestWithDataBase {
 
         $result = $internalAPIDirectory->saveRecordCreate($recordCreate);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertFalse($result->isApproved());
 
 
@@ -240,6 +242,7 @@ class RecordCreateFieldTypeStringWithDataBaseTest extends BaseTestWithDataBase {
 
         $result = $internalAPIDirectory->saveRecordCreate($recordCreate);
         $this->assertTrue($result->getSuccess());
+        $this->assertFalse($result->hasFieldErrors());
         $this->assertTrue($result->isApproved());
         $this->assertTrue(is_string($result->getId()));
 

@@ -229,15 +229,14 @@ class InternalAPIDirectory
                     $fieldType->processInternalAPI1Record($fieldEdit, $this->directory, null, $field, $event, $approve)
                 );
             } catch (\DirectokiBundle\Exception\DataValidationException $dataValidationError) {
-                $dataValidationErrors[$fieldEdit->getPublicID()] = new \DirectokiBundle\InternalAPI\V1\Exception\DataValidationError($dataValidationError->getMessage());
+                $dataValidationErrors[$fieldEdit->getPublicID()] = array(new \DirectokiBundle\InternalAPI\V1\Exception\DataValidationException($dataValidationError->getMessage()));
             }
 
         }
 
         if ($dataValidationErrors) {
 
-            // TODO return some details on the error
-            return new CreateRecordResult(false, false, null);
+            return new CreateRecordResult(false, false, null, $dataValidationErrors);
 
         } else if ($fieldDataToSave) {
 
