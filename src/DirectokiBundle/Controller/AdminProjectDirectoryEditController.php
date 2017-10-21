@@ -7,6 +7,7 @@ use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Field;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasState;
+use DirectokiBundle\Exception\DataValidationException;
 use DirectokiBundle\FieldType\FieldTypeBoolean;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
@@ -495,25 +496,29 @@ class AdminProjectDirectoryEditController extends AdminProjectDirectoryControlle
                     $doctrine->persist($recordHasState);
                 }
 
-                foreach($fields as $field) {
-                    $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);
-                    foreach($fieldType->processNewRecordForm($field, $record, $form, $event, $approve) as $entity) {
-                        $doctrine->persist($entity);
+                try {
+                    foreach ($fields as $field) {
+                        $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);
+                        foreach ($fieldType->processNewRecordForm($field, $record, $form, $event, $approve) as $entity) {
+                            $doctrine->persist($entity);
+                        }
                     }
+
+                    $doctrine->flush();
+
+                    if ($approve) {
+                        $updateRecordCache = new UpdateRecordCache($this->container);
+                        $updateRecordCache->go($record);
+                    }
+
+                    return $this->redirect($this->generateUrl('directoki_admin_project_directory_record_show', array(
+                        'projectId' => $this->project->getPublicId(),
+                        'directoryId' => $this->directory->getPublicId(),
+                        'recordId' => $record->getPublicId(),
+                    )));
+                } catch (DataValidationException $dataValidationException) {
+                    // do nothenig; form will display errors properly
                 }
-
-                $doctrine->flush();
-
-                if ($approve) {
-                    $updateRecordCache = new UpdateRecordCache($this->container);
-                    $updateRecordCache->go($record);
-                }
-
-                return $this->redirect($this->generateUrl('directoki_admin_project_directory_record_show', array(
-                    'projectId'=>$this->project->getPublicId(),
-                    'directoryId'=>$this->directory->getPublicId(),
-                    'recordId'=>$record->getPublicId(),
-                )));
             }
         }
 

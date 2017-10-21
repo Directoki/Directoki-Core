@@ -202,7 +202,7 @@ class FieldTypeEmail extends  BaseFieldType {
 
     public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
     {
-        $formBuilderInterface->add($field->getPublicId(), EmailType::class, array(
+        $formBuilderInterface->add('field_'.$field->getPublicId(), EmailType::class, array(
             'required' => false,
             'label'=>$field->getTitle(),
         ));
@@ -210,8 +210,14 @@ class FieldTypeEmail extends  BaseFieldType {
 
     public function processNewRecordForm(Field $field, Record $record,Form $form, Event $creationEvent, $published = false)
     {
-        $data = $form->get($field->getPublicId())->getData();
+        $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data) {
+
+            if ($data && !filter_var($data, FILTER_VALIDATE_EMAIL)) {
+                $form->get('field_'.$field->getPublicId())->addError(new FormError('Please enter a valid email address'));
+                throw new DataValidationException();
+            }
+
             $newRecordHasFieldValues = new RecordHasFieldEmailValue();
             $newRecordHasFieldValues->setRecord($record);
             $newRecordHasFieldValues->setField($field);
