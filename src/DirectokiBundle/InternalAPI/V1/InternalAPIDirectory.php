@@ -7,6 +7,7 @@ use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Project;
 
 use DirectokiBundle\Entity\RecordHasState;
+use DirectokiBundle\Exception\DataValidationError;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
@@ -215,20 +216,30 @@ class InternalAPIDirectory
         }
 
         $fieldDataToSave = array();
+        $dataValidationErrors = array();
         foreach ( $recordCreate->getFieldValueEdits() as $fieldEdit ) {
 
             $field = $doctrine->getRepository('DirectokiBundle:Field')->findOneBy(array('directory'=>$this->directory, 'publicId'=>$fieldEdit->getPublicID()));
 
             $fieldType = $this->container->get( 'directoki_field_type_service' )->getByField( $field );
 
-            $fieldDataToSave = array_merge(
-                $fieldDataToSave,
-                $fieldType->processInternalAPI1Record($fieldEdit, $this->directory, null, $field, $event, $approve)
-            );
+            try {
+                $fieldDataToSave = array_merge(
+                    $fieldDataToSave,
+                    $fieldType->processInternalAPI1Record($fieldEdit, $this->directory, null, $field, $event, $approve)
+                );
+            } catch (\DirectokiBundle\Exception\DataValidationError $dataValidationError) {
+                $dataValidationErrors[$fieldEdit->getPublicID()] = new \DirectokiBundle\InternalAPI\V1\Exception\DataValidationError($dataValidationError->getMessage());
+            }
 
         }
 
-        if ($fieldDataToSave) {
+        if ($dataValidationErrors) {
+
+            // TODO return some details on the error
+            return new CreateRecordResult(false, false, null);
+
+        } else if ($fieldDataToSave) {
 
             $email = $recordCreate->getEmail();
             if ($email) {
