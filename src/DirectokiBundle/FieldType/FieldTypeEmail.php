@@ -258,7 +258,10 @@ class FieldTypeEmail extends  BaseFieldType {
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data != $this->getLatestFieldValue($field, $record)->getValue()) {
-
+            if ($data && !filter_var($data, FILTER_VALIDATE_EMAIL)) {
+                $form->get('field_'.$field->getPublicId())->addError(new FormError('Please enter a valid email address'));
+                throw new DataValidationError();
+            }
             $newRecordHasFieldValues = new RecordHasFieldEmailValue();
             $newRecordHasFieldValues->setRecord($record);
             $newRecordHasFieldValues->setField($field);

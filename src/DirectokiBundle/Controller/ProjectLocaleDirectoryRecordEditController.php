@@ -4,6 +4,7 @@ namespace DirectokiBundle\Controller;
 
 use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\RecordReport;
+use DirectokiBundle\Exception\DataValidationError;
 use DirectokiBundle\FieldType\StringFieldType;
 use DirectokiBundle\Form\Type\PublicRecordReportType;
 use DirectokiBundle\Form\Type\PublicRecordEditType;
@@ -120,43 +121,49 @@ class ProjectLocaleDirectoryRecordEditController extends ProjectLocaleDirectoryR
                 );
 
                 $fieldDataToSave = array();
+                $anyDataValidationErrors = false;
                 foreach ( $fields as $field ) {
 
                     $fieldType = $this->container->get( 'directoki_field_type_service' )->getByField( $field );
 
-                    $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processPublicEditRecordForm($field, $this->record, $form, $event, false));
-
+                    try {
+                        $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processPublicEditRecordForm($field, $this->record, $form, $event, false));
+                    } catch (DataValidationError $dataValidationError) {
+                        $anyDataValidationErrors = true;
+                    }
                 }
 
-                if ($fieldDataToSave) {
+                if (!$anyDataValidationErrors) {
+                    if ($fieldDataToSave) {
 
-                    if (!$this->getUser()) {
-                        $email = trim($form->get('email')->getData());
-                        if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                            $event->setContact($doctrine->getRepository('DirectokiBundle:Contact')->findOrCreateByEmail($this->project, $email));
+                        if (!$this->getUser()) {
+                            $email = trim($form->get('email')->getData());
+                            if ($email && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                                $event->setContact($doctrine->getRepository('DirectokiBundle:Contact')->findOrCreateByEmail($this->project, $email));
+                            }
                         }
+
+                        $doctrine->persist($event);
+
+                        foreach ($fieldDataToSave as $entityToSave) {
+                            $doctrine->persist($entityToSave);
+                        }
+
+                        $doctrine->flush();
+
+                        $action = new UpdateRecordCache($this->container);
+                        $action->go($this->record);
                     }
 
-                    $doctrine->persist($event);
+                    $this->addFlash("notice", "Your information has been received and will be moderated - thank you!");
 
-                    foreach($fieldDataToSave as $entityToSave) {
-                        $doctrine->persist($entityToSave);
-                    }
-
-                    $doctrine->flush();
-
-                    $action = new UpdateRecordCache($this->container);
-                    $action->go($this->record);
+                    return $this->redirect($this->generateUrl('directoki_project_locale_directory_record_show', array(
+                        'projectId' => $this->project->getPublicId(),
+                        'localeId' => $this->locale->getPublicId(),
+                        'directoryId' => $this->directory->getPublicId(),
+                        'recordId' => $this->record->getPublicId(),
+                    )));
                 }
-
-                $this->addFlash("notice","Your information has been received and will be moderated - thank you!");
-
-                return $this->redirect($this->generateUrl('directoki_project_locale_directory_record_show', array(
-                    'projectId'=>$this->project->getPublicId(),
-                    'localeId'=>$this->locale->getPublicId(),
-                    'directoryId'=>$this->directory->getPublicId(),
-                    'recordId'=>$this->record->getPublicId(),
-                )));
             }
         }
 
