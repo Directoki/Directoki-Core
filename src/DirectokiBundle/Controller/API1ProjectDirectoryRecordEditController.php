@@ -6,6 +6,7 @@ use DirectokiBundle\Action\UpdateRecordCache;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\RecordReport;
+use DirectokiBundle\Exception\DataValidationError;
 use DirectokiBundle\FieldType\StringFieldType;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -59,15 +60,32 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
         $fields = $doctrine->getRepository( 'DirectokiBundle:Field' )->findForDirectory( $this->directory );
 
         $fieldDataToSave = array();
+        $dataValidationErrors = array();
         foreach ( $fields as $field ) {
 
             $fieldType = $this->container->get( 'directoki_field_type_service' )->getByField( $field );
 
-            $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processAPI1Record($field, $this->record, $parameterBag, $event));
-
+            try {
+                $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processAPI1Record($field, $this->record, $parameterBag, $event));
+            } catch (DataValidationError $dataValidationError) {
+                $dataValidationErrors[$field->getPublicId()] = $dataValidationError;
+            }
         }
 
-        if ($fieldDataToSave) {
+        if ($dataValidationErrors) {
+
+            $out =  array(
+                'code'=>400,
+                'response'=>array(
+                    'field_errors'=>[],
+                ),
+            );
+            foreach($dataValidationErrors as $k=>$v) {
+                $out['response']['field_errors'][$k] = [ $v->getMessage() ];
+            }
+            return $out;
+
+        } else if ($fieldDataToSave) {
 
             $event->setAPIVersion(1);
             $email = trim($parameterBag->get('email'));
@@ -89,10 +107,16 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
             $updateRecordCacheAction = new UpdateRecordCache($this->container);
             $updateRecordCacheAction->go($this->record);
 
-            return array();
+            return array(
+                'code'=>200,
+                'response'=>array(),
+            );
 
         } else {
-            return array();
+            return array(
+                'code'=>200,
+                'response'=>array(),
+            );
         }
 
     }
@@ -100,7 +124,9 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
 
     public function editJSONAction(string $projectId, string $directoryId, string $recordId, Request $request)
     {
-        $response = new Response(json_encode($this->editData($projectId, $directoryId, $recordId, $request->request, $request)));
+        $data = $this->editData($projectId, $directoryId, $recordId, $request->request, $request);
+        $response = new Response(json_encode($data['response']));
+        $response->setStatusCode($data['code']);
         $response->headers->set('Content-Type', 'application/json');
         return $response;
 
@@ -108,8 +134,10 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
 
     public function editJSONPAction(string $projectId, string $directoryId, string $recordId, Request $request)
     {
+        $data = $this->editData($projectId, $directoryId, $recordId, $request->query, $request);
         $callback = $request->get('q') ? $request->get('q') : 'callback';
-        $response = new Response($callback."(".json_encode($this->editData($projectId, $directoryId, $recordId, $request->query, $request)).");");
+        $response = new Response($callback."(".json_encode($data['response']).");");
+        $response->setStatusCode($data['code']);
         $response->headers->set('Content-Type', 'application/javascript');
         return $response;
     }

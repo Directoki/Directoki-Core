@@ -125,6 +125,9 @@ class FieldTypeEmail extends  BaseFieldType {
             }
             $newValue = $parameterBag->get('field_'.$field->getPublicId().'_value');
             if ($newValue != $currentValue) {
+                if ($newValue && !filter_var($newValue, FILTER_VALIDATE_EMAIL)) {
+                    throw new DataValidationError('Please set a valid email!');
+                }
                 $newRecordHasFieldValues = new RecordHasFieldEmailValue();
                 $newRecordHasFieldValues->setRecord($record);
                 $newRecordHasFieldValues->setField($field);
