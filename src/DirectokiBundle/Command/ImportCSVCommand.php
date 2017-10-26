@@ -59,7 +59,15 @@ class ImportCSVCommand extends ContainerAwareCommand
         }
         $output->writeln('Directory: '. $directory->getTitleSingular());
 
-        if (!file_exists($config['general']['file']) || !is_readable($config['general']['file'])) {
+        $fileName = null;
+        if (isset($config['general']['url']) && filter_var($config['general']['url'], FILTER_VALIDATE_URL)) {
+            $fileName = tempnam(sys_get_temp_dir(), 'DirectokiImport');
+            $output->writeln('Downloading File ...');
+            file_put_contents($fileName, fopen($config['general']['url'], 'r'));
+        } else if (file_exists($config['general']['file']) && is_readable($config['general']['file'])) {
+            $output->writeln('Found File');
+            $fileName = $config['general']['file'];
+        } else {
             $output->writeln('Cant load File');
             return;
         }
@@ -96,7 +104,7 @@ class ImportCSVCommand extends ContainerAwareCommand
         $csvEscape = isset($config['csv']) && isset($config['csv']['escape']) ? $config['csv']['escape'] : "\\";
 
         $updateCacheAction = new UpdateRecordCache($this->getContainer());
-        $file = fopen($config['general']['file'], 'r');
+        $file = fopen($fileName, 'r');
 
 
         $lineNumber = 1;
