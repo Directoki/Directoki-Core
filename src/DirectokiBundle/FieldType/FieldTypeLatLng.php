@@ -187,8 +187,8 @@ class FieldTypeLatLng extends  BaseFieldType {
             $columnLat = intval($fieldConfig['column_lat']);
             $columnLng = intval($fieldConfig['column_lng']);
             if (isset($lineData[$columnLat]) && isset($lineData[$columnLng]) && $lineData[$columnLat] && $lineData[$columnLng]) {
-                $dataLat = $lineData[$columnLat];
-                $dataLng = $lineData[$columnLng];
+                $dataLat = floatval($lineData[$columnLat]);
+                $dataLng = floatval($lineData[$columnLng]);
 
                 $newRecordHasFieldValues = new RecordHasFieldLatLngValue();
                 $newRecordHasFieldValues->setRecord($record);

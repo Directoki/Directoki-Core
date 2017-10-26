@@ -90,12 +90,24 @@ class ImportCSVCommand extends ContainerAwareCommand
             }
         }
 
+        $csvLength = isset($config['csv']) && isset($config['csv']['length']) ? $config['csv']['length'] : 0;
+        $csvDelimiter = isset($config['csv']) && isset($config['csv']['delimiter']) ? $config['csv']['delimiter'] : ',';
+        $csvEnclosure = isset($config['csv']) && isset($config['csv']['enclosure']) ? $config['csv']['enclosure'] : '"';
+        $csvEscape = isset($config['csv']) && isset($config['csv']['escape']) ? $config['csv']['escape'] : "\\";
 
         $updateCacheAction = new UpdateRecordCache($this->getContainer());
         $file = fopen($config['general']['file'], 'r');
-        while($line = fgetcsv($file)) {
 
-            $output->writeln('Line ...');
+
+        $lineNumber = 1;
+        if ($config['csv']['skip_first_line'] && $config['csv']['skip_first_line']) {
+            $line = fgetcsv($file, $csvLength, $csvDelimiter, $csvEnclosure, $csvEscape);
+            $lineNumber++;
+        }
+        while($line = fgetcsv($file, $csvLength, $csvDelimiter, $csvEnclosure, $csvEscape)) {
+
+            $output->writeln('Line '.$lineNumber.'...');
+            $lineNumber++;
 
             $record = new Record();
             $record->setCreationEvent( $event );
