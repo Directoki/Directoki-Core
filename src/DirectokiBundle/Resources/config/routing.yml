@@ -73,6 +73,10 @@ directoki_admin_project_settings:
     path:     /admin/project/{projectId}/settings
     defaults: { _controller: DirectokiBundle:AdminProject:settings }
 
+directoki_admin_project_settings_edit:
+    path:     /admin/project/{projectId}/settings/edit
+    defaults: { _controller: DirectokiBundle:AdminProjectEdit:editSettings }
+
 directoki_admin_project_contact_list:
     path:     /admin/project/{projectId}/contact
     defaults: { _controller: DirectokiBundle:AdminProject:contact }

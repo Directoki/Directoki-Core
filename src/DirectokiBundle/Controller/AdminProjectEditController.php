@@ -7,6 +7,7 @@ use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Locale;
 use DirectokiBundle\Form\Type\DirectoryNewType;
 use DirectokiBundle\Form\Type\LocaleNewType;
+use DirectokiBundle\Form\Type\ProjectSettingsEditType;
 use DirectokiBundle\Security\ProjectVoter;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpFoundation\Request;
@@ -121,6 +122,35 @@ class AdminProjectEditController extends AdminProjectController
 
     }
 
+    public function editSettingsAction(string  $projectId, Request $request)
+    {
+
+        // build
+        $this->build($projectId);
+        //data
+
+        $doctrine = $this->getDoctrine()->getManager();
+
+        $form = $this->createForm( ProjectSettingsEditType::class, $this->project);
+        if ($request->getMethod() == 'POST') {
+            $form->handleRequest($request);
+            if ($form->isValid()) {
+
+                $doctrine->persist($this->project);
+                $doctrine->flush();
+
+                return $this->redirect($this->generateUrl('directoki_admin_project_settings', array(
+                    'projectId'=>$this->project->getPublicId(),
+                )));
+            }
+        }
+
+        return $this->render('DirectokiBundle:AdminProjectEdit:editSettings.html.twig', array(
+            'project' => $this->project,
+            'form' => $form->createView(),
+        ));
+
+    }
 
 
 }
