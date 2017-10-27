@@ -217,13 +217,13 @@ class FieldTypeLatLng extends  BaseFieldType {
     public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
     {
 
-        $formBuilderInterface->add($field->getPublicId().'_lat', NumberType::class, array(
+        $formBuilderInterface->add('field_'.$field->getPublicId().'_lat', NumberType::class, array(
             'required' => false,
             'label'=>$field->getTitle().' Lat',
             'scale'=>12,
         ));
 
-        $formBuilderInterface->add($field->getPublicId().'_lng', NumberType::class, array(
+        $formBuilderInterface->add('field_'.$field->getPublicId().'_lng', NumberType::class, array(
             'required' => false,
             'label'=>$field->getTitle().' Lng',
             'scale'=>12,
@@ -232,8 +232,8 @@ class FieldTypeLatLng extends  BaseFieldType {
 
     public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
-        $lat = $form->get($field->getPublicId().'_lat')->getData();
-        $lng = $form->get($field->getPublicId().'_lng')->getData();
+        $lat = $form->get('field_'.$field->getPublicId().'_lat')->getData();
+        $lng = $form->get('field_'.$field->getPublicId().'_lng')->getData();
         if ($lat && $lng) {
             $newRecordHasFieldValues = new RecordHasFieldLatLngValue();
             $newRecordHasFieldValues->setRecord($record);

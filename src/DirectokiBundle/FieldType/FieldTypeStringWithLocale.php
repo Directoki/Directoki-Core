@@ -350,7 +350,7 @@ class FieldTypeStringWithLocale extends BaseFieldType {
         foreach($repo->findByProject($field->getDirectory()->getProject()) as $locale) {
 
 
-            $formBuilderInterface->add($field->getPublicId().'_value_'.$locale->getPublicId(), TextType::class, array(
+            $formBuilderInterface->add('field_'.$field->getPublicId().'_value_'.$locale->getPublicId(), TextType::class, array(
                 'required' => false,
                 'label' => $field->getTitle(). ' ('.$locale->getTitle().')',
             ));
@@ -379,7 +379,7 @@ class FieldTypeStringWithLocale extends BaseFieldType {
 
         foreach($repo->findByProject($record->getDirectory()->getProject()) as $locale) {
 
-            $newValue = self::filterValue($form->get($field->getPublicId().'_value_'.$locale->getPublicId())->getData());
+            $newValue = self::filterValue($form->get('field_'.$field->getPublicId().'_value_'.$locale->getPublicId())->getData());
 
             if ($newValue) {
                 $newRecordHasFieldValues = new RecordHasFieldStringWithLocaleValue();

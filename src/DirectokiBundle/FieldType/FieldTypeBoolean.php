@@ -154,7 +154,7 @@ class FieldTypeBoolean extends  BaseFieldType {
     }
     public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
     {
-        $formBuilderInterface->add($field->getPublicId(), CheckboxType::class, array(
+        $formBuilderInterface->add('field_'.$field->getPublicId(), CheckboxType::class, array(
             'required' => false,
             'label'=>$field->getTitle(),
             'value' => true,
@@ -163,7 +163,7 @@ class FieldTypeBoolean extends  BaseFieldType {
 
     public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
-        $data = $form->get($field->getPublicId())->getData();
+        $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data) {
             $newRecordHasFieldValues = new RecordHasFieldBooleanValue();
             $newRecordHasFieldValues->setRecord($record);

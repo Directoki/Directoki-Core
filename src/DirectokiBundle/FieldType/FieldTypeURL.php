@@ -169,7 +169,7 @@ class FieldTypeURL extends  BaseFieldType {
     }
     public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
     {
-        $formBuilderInterface->add($field->getPublicId(), UrlType::class, array(
+        $formBuilderInterface->add('field_'.$field->getPublicId(), UrlType::class, array(
             'required' => false,
             'label'=>$field->getTitle(),
         ));
@@ -177,7 +177,7 @@ class FieldTypeURL extends  BaseFieldType {
 
     public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
-        $data = $form->get($field->getPublicId())->getData();
+        $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data) {
             $newRecordHasFieldValues = new RecordHasFieldURLValue();
             $newRecordHasFieldValues->setRecord($record);

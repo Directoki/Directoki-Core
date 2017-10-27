@@ -448,7 +448,7 @@ class FieldTypeMultiSelect extends  BaseFieldType
     public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
     {
         foreach ($this->getSelectValues($field) as $selectValue) {
-            $formBuilderInterface->add($field->getPublicId().'_value_'. $selectValue->getPublicId(), CheckboxType::class, array(
+            $formBuilderInterface->add('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId(), CheckboxType::class, array(
                 'required' => false,
                 'label'=> $selectValue->getTitle(),
             ));
@@ -459,7 +459,7 @@ class FieldTypeMultiSelect extends  BaseFieldType
     {
         $entitesToSave = array();
         foreach ($this->getSelectValues($field) as $selectValue) {
-            $value = $form->get($field->getPublicId().'_value_'. $selectValue->getPublicId())->getData();
+            $value = $form->get('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId())->getData();
             if ($value) {
                 $newRecordHasFieldValues = new RecordHasFieldMultiSelectValue();
                 $newRecordHasFieldValues->setRecord($record);
