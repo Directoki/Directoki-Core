@@ -31,7 +31,7 @@ use DirectokiBundle\Tests\BaseTestWithDataBase;
 class InternalAPIFieldWithDataBaseTest extends BaseTestWithDataBase
 {
 
-    public function testString1() {
+    public function testExceptionWhenGetSelectValuesOfStringField() {
 
         $user = new User();
         $user->setEmail('test1@example.com');
@@ -69,12 +69,9 @@ class InternalAPIFieldWithDataBaseTest extends BaseTestWithDataBase
         $this->em->flush();
 
         # TEST
-        try {
-            $selectValues = (new InternalAPI($this->container))->getProjectAPI('test1')->getDirectoryAPI('resource')->getFieldAPI('title')->getPublishedSelectValues();
-            throw new \Exception('Should crashed');
-        } catch (\Exception $e) {
-            // We expected this
-        }
+        $fieldAPI = (new InternalAPI($this->container))->getProjectAPI('test1')->getDirectoryAPI('resource')->getFieldAPI('title');
+        $this->expectException(\Exception::class);
+        $fieldAPI->getPublishedSelectValues();
 
 
     }
