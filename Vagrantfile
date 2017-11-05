@@ -3,8 +3,8 @@
 
 Vagrant.configure(2) do |config|
 
-  config.vm.box = "boxcutter/ubuntu1604"
-  config.vm.box_version = "2.0.18"
+  config.vm.box = "ubuntu/xenial64"
+  config.ssh.username = "ubuntu"
 
   config.vm.define "app" do |normal|
 
@@ -18,7 +18,7 @@ Vagrant.configure(2) do |config|
          vb.gui = false
 
         # Customize the amount of memory on the VM:
-        vb.memory = "512"
+        vb.memory = "1024"
 
         # https://github.com/boxcutter/ubuntu/issues/82#issuecomment-260902424
         vb.customize [
@@ -28,13 +28,13 @@ Vagrant.configure(2) do |config|
 
       end
 
-      config.vm.provision :shell, path: "vagrant/bootstrap.sh"
+      config.vm.provision :shell, path: "vagrant/app/bootstrap.sh"
 
   end
 
   config.vm.define "tests" do |normal|
 
-      config.vm.synced_folder ".", "/vagrant",  :owner=> 'www-data', :group=>'users', :mount_options => ['dmode=777', 'fmode=777']
+      config.vm.synced_folder ".", "/vagrant",  :owner=> 'ubuntu', :group=>'users', :mount_options => ['dmode=777', 'fmode=777']
 
       config.vm.provider "virtualbox" do |vb|
          # Display the VirtualBox GUI when booting the machine

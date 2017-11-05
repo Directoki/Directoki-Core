@@ -16,17 +16,17 @@ sudo su --login -c "psql -c \"CREATE USER app WITH PASSWORD 'password';\"" postg
 sudo su --login -c "psql -c \"CREATE DATABASE app WITH OWNER app ENCODING 'UTF8'  LC_COLLATE='en_GB.UTF-8' LC_CTYPE='en_GB.UTF-8'  TEMPLATE=template0 ;\"" postgres
 
 
-mkdir /home/vagrant/bin
-cd /home/vagrant/bin
-wget -q https://getcomposer.org/composer.phar
+mkdir /bin
+wget -O /bin/composer.phar -q https://getcomposer.org/composer.phar
+wget -O /bin/phpunit.phar -q https://phar.phpunit.de/phpunit-6.3.phar
 
 cd /vagrant
-php /home/vagrant/bin/composer.phar  install
+php /bin/composer.phar  install
 
-cp /vagrant/vagrant/parameters_test.yml /vagrant/app/config/parameters_test.yml
-cp /vagrant/vagrant/parameters.yml /vagrant/app/config/parameters.yml
-cp /vagrant/vagrant/apache.conf /etc/apache2/sites-enabled/000-default.conf
-cp /vagrant/vagrant/app_dev.php /vagrant/web/app_dev.php
+cp /vagrant/vagrant/app/parameters_test.yml /vagrant/app/config/parameters_test.yml
+cp /vagrant/vagrant/app/parameters.yml /vagrant/app/config/parameters.yml
+cp /vagrant/vagrant/app/apache.conf /etc/apache2/sites-enabled/000-default.conf
+cp /vagrant/vagrant/app/app_dev.php /vagrant/web/app_dev.php
 
 mkdir /vagrant/app/cache/dev/
 mkdir /vagrant/app/cache/prod/
@@ -62,7 +62,10 @@ php app/console assetic:dump --env=dev
 chown -R www-data:www-data /vagrant/app/cache/prod/
 chown -R www-data:www-data /vagrant/app/cache/dev/
 
-echo "alias db='psql -U app app -hlocalhost'" >> /home/vagrant/.bashrc
-echo "localhost:5432:app:app:password" > /home/vagrant/.pgpass
-chown vagrant:vagrant /home/vagrant/.pgpass
-chmod 0600 /home/vagrant/.pgpass
+echo "alias db='psql -U app app -hlocalhost'" >> /home/ubuntu/.bashrc
+echo "localhost:5432:app:app:password" > /home/ubuntu/.pgpass
+chown ubuntu:ubuntu /home/ubuntu/.pgpass
+chmod 0600 /home/ubuntu/.pgpass
+
+echo "cd /vagrant" >> /home/ubuntu/.bashrc
+echo "alias test='php /bin/phpunit.phar -c /vagrant/app/'" >>  /home/ubuntu/.bashrc
