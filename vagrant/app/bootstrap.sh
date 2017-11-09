@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+set -e
 
 echo "en_GB.UTF-8 UTF-8" >> /etc/locale.gen
 
@@ -16,7 +17,7 @@ sudo su --login -c "psql -c \"CREATE USER app WITH PASSWORD 'password';\"" postg
 sudo su --login -c "psql -c \"CREATE DATABASE app WITH OWNER app ENCODING 'UTF8'  LC_COLLATE='en_GB.UTF-8' LC_CTYPE='en_GB.UTF-8'  TEMPLATE=template0 ;\"" postgres
 
 
-mkdir /bin
+mkdir -p /bin
 wget -O /bin/composer.phar -q https://getcomposer.org/composer.phar
 wget -O /bin/phpunit.phar -q https://phar.phpunit.de/phpunit-6.3.phar
 
@@ -28,16 +29,17 @@ cp /vagrant/vagrant/app/parameters.yml /vagrant/app/config/parameters.yml
 cp /vagrant/vagrant/app/apache.conf /etc/apache2/sites-enabled/000-default.conf
 cp /vagrant/vagrant/app/app_dev.php /vagrant/web/app_dev.php
 
-mkdir /vagrant/app/cache/dev/
-mkdir /vagrant/app/cache/prod/
+if [ ! -d "/vagrant/app/cache/dev/" ]; then
+	mkdir /vagrant/app/cache/dev/
+fi
+if [ ! -d "/vagrant/app/cache/prod/" ]; then
+	mkdir /vagrant/app/cache/prod/
+fi
 
 touch /vagrant/app/logs/prod.log
 touch /vagrant/app/logs/dev.log
 chown -R www-data:www-data /vagrant/app/logs/prod.log
 chown -R www-data:www-data /vagrant/app/logs/dev.log
-
-rm -r /vagrant/app/cache/prod/*
-rm -r /vagrant/app/cache/dev/*
 
 a2enmod rewrite
 /etc/init.d/apache2 restart
