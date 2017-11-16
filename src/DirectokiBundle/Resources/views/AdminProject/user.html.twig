@@ -10,7 +10,6 @@
 
 {% block main %}
 
-
 	<ol class="breadcrumb">
 		<li><a href="{{ path('directoki_admin_project_list') }}">Admin</a></li>
 		<li><a href="{{  path('directoki_admin_project_show', { 'projectId':project.publicId }) }}">Project: {{  project.title }}</a></li>
@@ -47,6 +46,8 @@
 		<p>You have no admins</p>
 	{% endif %}
 
-
+    {% if project.owner == app.user %}
+		<a href="{{  path('directoki_admin_project_user_add_admin', { 'projectId':project.publicId  }) }}" class="btn btn-default">Add Admin</a>
+    {% endif %}
 
 {%  endblock %}

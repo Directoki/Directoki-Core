@@ -68,6 +68,11 @@
 			{{ flashMessage }}
 		</div>
 	{% endfor %}
+	{% for flashMessage in app.session.flashbag.get('error') %}
+		<div class="alert alert-danger">
+			{{ flashMessage }}
+		</div>
+	{% endfor %}
 
 	{% if directoki_read_only %}
 		<div class="alert alert-danger">

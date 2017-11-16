@@ -5,6 +5,8 @@ namespace DirectokiBundle\Controller;
 use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Locale;
+use DirectokiBundle\Entity\ProjectAdmin;
+use DirectokiBundle\Form\Type\AddAdminType;
 use DirectokiBundle\Form\Type\DirectoryNewType;
 use DirectokiBundle\Form\Type\LocaleNewType;
 use DirectokiBundle\Form\Type\ProjectSettingsEditType;
@@ -146,6 +148,67 @@ class AdminProjectEditController extends AdminProjectController
         }
 
         return $this->render('DirectokiBundle:AdminProjectEdit:editSettings.html.twig', array(
+            'project' => $this->project,
+            'form' => $form->createView(),
+        ));
+
+    }
+
+    public function addAdminAction(string  $projectId, Request $request)
+    {
+
+        // build
+        $this->build($projectId);
+        if ($this->project->getOwner() != $this->getUser()) {
+            throw new HttpException(403, 'Only Owners Can Do That.');
+        }
+
+        //data
+
+        $doctrine = $this->getDoctrine()->getManager();
+        $userRepository = $doctrine->getRepository('JMBTechnologyUserAccountsBundle:User');
+        $projectAdminRepository = $doctrine->getRepository('DirectokiBundle:ProjectAdmin');
+
+        $form = $this->createForm( AddAdminType::class );
+        if ($request->getMethod() == 'POST') {
+            $form->handleRequest($request);
+            if ($form->isValid()) {
+
+
+                $user = $userRepository->findOneByEmail($form->get('email')->getData());
+                if ($user) {
+
+                    if ($projectAdminRepository->findOneBy(array('user'=>$user,'project'=>$this->project))) {
+                        $this->addFlash(
+                            'error',
+                            'This user is already an admin!'
+                        );
+
+                    } else {
+
+                        $projectAdmin = new ProjectAdmin();
+                        $projectAdmin->setProject($this->project);
+                        $projectAdmin->setUser($user);
+                        $doctrine->persist($projectAdmin);
+                        $doctrine->flush();
+
+                        return $this->redirect($this->generateUrl('directoki_admin_project_user_list', array(
+                            'projectId'=>$this->project->getPublicId(),
+                        )));
+
+                    }
+
+                } else {
+                    $this->addFlash(
+                        'error',
+                        'We can not find that email address!'
+                    );
+                }
+
+            }
+        }
+
+        return $this->render('DirectokiBundle:AdminProjectEdit:addAdmin.html.twig', array(
             'project' => $this->project,
             'form' => $form->createView(),
         ));
