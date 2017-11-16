@@ -16,6 +16,11 @@ services:
         # needs to be public as internal API checks it
         public: true
         arguments: ["@service_container"]
+    directoki.twig.directory:
+        class: DirectokiBundle\Twig\DirectoryExtension
+        tags:
+            - { name: twig.extension }
+        arguments: ["@service_container"]
     directoki.time_service:
         class: DirectokiBundle\Service\TimeService
 

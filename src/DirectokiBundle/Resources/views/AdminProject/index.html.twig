@@ -24,6 +24,7 @@
 			<thead>
 			<tr>
 				<th>Type</th>
+				<th># Records Needing Attention</th>
 				<th>&nbsp;</th>
 			</tr>
 			</thead>
@@ -32,6 +33,9 @@
 				<tr>
 					<td>
 						{{  directory.titlePlural }}
+					</td>
+					<td>
+						{{  directory | directoki_directory_count_records_needing_attention }}
 					</td>
 					<td>
 						<a href="{{  path('directoki_admin_project_directory_show', { 'projectId':project.publicId,'directoryId':directory.publicId }) }}" class="btn btn-default">View</a>
