@@ -215,5 +215,38 @@ class AdminProjectEditController extends AdminProjectController
 
     }
 
+    public function removeAdminAction(string  $projectId, string $user, Request $request)
+    {
+
+        // build
+        $this->build($projectId);
+        if ($this->project->getOwner() != $this->getUser()) {
+            throw new HttpException(403, 'Only Owners Can Do That.');
+        }
+
+        //data
+
+        // TODO should have CSFR protection here
+
+        $doctrine = $this->getDoctrine()->getManager();
+        $userRepository = $doctrine->getRepository('JMBTechnologyUserAccountsBundle:User');
+        $projectAdminRepository = $doctrine->getRepository('DirectokiBundle:ProjectAdmin');
+
+        $user = $userRepository->findOneById($user);
+        if ($user) {
+            $projectAdmin = $projectAdminRepository->findOneBy(array('user' => $user, 'project' => $this->project));
+
+            if ($projectAdmin) {
+                $doctrine->remove($projectAdmin);
+                $doctrine->flush();
+            }
+        }
+
+        return $this->redirect($this->generateUrl('directoki_admin_project_user_list', array(
+            'projectId'=>$this->project->getPublicId(),
+        )));
+
+    }
+
 
 }

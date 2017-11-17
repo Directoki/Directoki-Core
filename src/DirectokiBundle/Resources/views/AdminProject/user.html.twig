@@ -36,7 +36,11 @@
 						{{  projectAdmin.user.username }}
 					</td>
 					<td>
-						&nbsp;
+						{% if project.owner == app.user %}
+							<form action="{{  path('directoki_admin_project_user_remove_admin', { 'projectId':project.publicId, 'user': projectAdmin.user.id  }) }}" method="post">
+								<input type="submit" class="btn btn-default" value="Remove Admin">
+							</form>
+						{% endif %}
 					</td>
 				</tr>
 			{%  endfor %}

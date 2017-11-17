@@ -69,6 +69,10 @@ directoki_admin_project_user_add_admin:
     path:     /admin/project/{projectId}/userAddAdmin
     defaults: { _controller: DirectokiBundle:AdminProjectEdit:addAdmin }
 
+directoki_admin_project_user_remove_admin:
+    path:     /admin/project/{projectId}/userRemoveAdmin/{user}
+    defaults: { _controller: DirectokiBundle:AdminProjectEdit:removeAdmin }
+
 directoki_admin_project_stats:
     path:     /admin/project/{projectId}/stats
     defaults: { _controller: DirectokiBundle:AdminProject:stats }
