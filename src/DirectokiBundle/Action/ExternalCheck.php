@@ -50,7 +50,9 @@ class ExternalCheck {
 
     protected function processURL(string $url, Record $record) {
 
-        // TODO when was this URL last checked; do we skip?
+        if ($this->wasURLCheckedRecently($url, $record->getDirectory()->getProject())) {
+            return;
+        }
 
         $res = null;
         try {
@@ -60,9 +62,14 @@ class ExternalCheck {
             $this->recordResult($url, $record, $res ? $res->getStatusCode() : null, $e->getMessage());
         }
 
+    }
 
 
+    protected function wasURLCheckedRecently(string $url, Project $project) {
 
+        $doctrine = $this->container->get('doctrine')->getManager();
+
+        return $doctrine->getRepository('DirectokiBundle:ExternalCheck')->wasURLCheckedRecently($url, $project);
 
     }
 

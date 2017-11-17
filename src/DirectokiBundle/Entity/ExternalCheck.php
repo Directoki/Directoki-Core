@@ -10,7 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  *  @license 3-clause BSD
  *  @link https://github.com/Directoki/Directoki-Core/blob/master/LICENSE.txt
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="DirectokiBundle\Repository\ExternalCheckRepository")
  * @ORM\Table(name="directoki_external_check")
  * @ORM\HasLifecycleCallbacks
  */
@@ -163,7 +163,9 @@ class ExternalCheck
      * @ORM\PrePersist()
      */
     public function beforeFirstSave() {
-        $this->createdAt = new \DateTime("", new \DateTimeZone("UTC"));
+        if (!$this->createdAt) {
+            $this->createdAt = new \DateTime("", new \DateTimeZone("UTC"));
+        }
     }
 
 
