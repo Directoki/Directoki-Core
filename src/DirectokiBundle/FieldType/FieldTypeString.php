@@ -10,6 +10,7 @@ use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasFieldStringValue;
 use DirectokiBundle\Entity\Field;
 use DirectokiBundle\LocaleMode\BaseLocaleMode;
+use DirectokiBundle\URLTools;
 use Symfony\Component\Form\Form;
 use DirectokiBundle\InternalAPI\V1\Model\BaseFieldValue;
 use JMBTechnology\UserAccountsBundle\Entity\User;
@@ -235,8 +236,13 @@ class FieldTypeString extends  BaseFieldType {
 
     public function getURLsForExternalCheck(Field $field, Record $record)
     {
-        // TODO: Implement getURLsForExternalCheck() method.
-        return array();
+        $value = $this->getLatestFieldValue($field, $record);
+        if ($value) {
+            $tools = new URLTools();
+            return $tools->getListOfURLsInText($value->getValue());
+        } else {
+            return array();
+        }
     }
 
     public function getFullTextSearch(Field $field, Record $record, Locale $locale)
