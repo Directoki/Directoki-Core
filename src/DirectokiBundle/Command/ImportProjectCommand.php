@@ -10,6 +10,7 @@ use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasState;
 use DirectokiBundle\Exception\DataValidationException;
+use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
 use DirectokiBundle\FieldType\FieldTypeString;
@@ -143,6 +144,8 @@ class ImportProjectCommand extends ContainerAwareCommand
                     $field->setFieldType(FieldTypeString::FIELD_TYPE_INTERNAL);
                 } else if ($type == 'text') {
                     $field->setFieldType(FieldTypeText::FIELD_TYPE_INTERNAL);
+                } else if ($type == 'email') {
+                    $field->setFieldType(FieldTypeEmail::FIELD_TYPE_INTERNAL);
                 } else if ($type == 'url') {
                     $field->setFieldType(FieldTypeURL::FIELD_TYPE_INTERNAL);
                 } else if ($type == 'multiselect') {
