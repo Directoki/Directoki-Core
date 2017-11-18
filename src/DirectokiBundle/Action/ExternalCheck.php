@@ -56,10 +56,12 @@ class ExternalCheck {
 
         $res = null;
         try {
-            $res = $this->guzzle->request('GET', $url, ['timeout' => 10, 'allow_redirects' => true,'http_errors'=> false]);
+            $res = $this->guzzle->request('GET', $url, ['timeout' => 10, 'allow_redirects' => true, 'http_errors' => false]);
             $this->recordResult($url, $record, $res->getStatusCode());
+        } catch (\GuzzleHttp\Exception\TooManyRedirectsException $e) {
+            $this->recordResult($url, $record, null, "This website tried to make to many redirects.");
         } catch (RequestException $e) {
-            $this->recordResult($url, $record, $res ? $res->getStatusCode() : null, $e->getMessage());
+            $this->recordResult($url, $record, $res ? $res->getStatusCode() : null, get_class($e). ' '. $e->getMessage());
         }
 
     }
