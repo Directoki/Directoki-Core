@@ -102,6 +102,9 @@ class API1ProjectDirectoryRecordEditControllerFieldStringWithLocaleWithDataBaseT
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(true, $data['success']);
 
         # TEST AGAIN
 
@@ -179,6 +182,10 @@ class API1ProjectDirectoryRecordEditControllerFieldStringWithLocaleWithDataBaseT
         ));
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
+
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(true, $data['success']);
 
 
         # TEST AGAIN
@@ -260,6 +267,9 @@ class API1ProjectDirectoryRecordEditControllerFieldStringWithLocaleWithDataBaseT
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(true, $data['success']);
 
         # TEST AGAIN
 
@@ -355,6 +365,9 @@ class API1ProjectDirectoryRecordEditControllerFieldStringWithLocaleWithDataBaseT
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(true, $data['success']);
 
         # TEST AGAIN
 
@@ -455,6 +468,9 @@ class API1ProjectDirectoryRecordEditControllerFieldStringWithLocaleWithDataBaseT
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(true, $data['success']);
 
         # TEST AGAIN
 

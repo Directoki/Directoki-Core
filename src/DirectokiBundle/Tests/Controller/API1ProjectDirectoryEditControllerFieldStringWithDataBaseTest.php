@@ -71,6 +71,9 @@ class API1ProjectDirectoryEditControllerFieldStringWithDataBaseTest extends Base
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(true, $response['success']);
+
         # TEST
 
         $values = $this->em->getRepository('DirectokiBundle:RecordHasFieldStringValue')->findAll();
@@ -135,6 +138,8 @@ class API1ProjectDirectoryEditControllerFieldStringWithDataBaseTest extends Base
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(true, $response['success']);
 
         # TEST
 
@@ -201,6 +206,8 @@ class API1ProjectDirectoryEditControllerFieldStringWithDataBaseTest extends Base
 
         $this->assertEquals(403, $client->getResponse()->getStatusCode());
 
+        $response = json_decode($client->getResponse()->getContent(), true);
+        $this->assertEquals(false, $response['success']);
     }
 
 

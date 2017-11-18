@@ -35,4 +35,13 @@ abstract class BaseTest extends WebTestCase
 
     }
 
+
+    protected function getJSONBitOfAJSONPString($content) {
+        $contentBits = explode('{', $content, 2);
+        $contentBits = explode('}', $contentBits[1]);
+        array_pop($contentBits);
+        $content = implode('}', $contentBits);
+        return '{'.$content.'}';
+    }
+
 }

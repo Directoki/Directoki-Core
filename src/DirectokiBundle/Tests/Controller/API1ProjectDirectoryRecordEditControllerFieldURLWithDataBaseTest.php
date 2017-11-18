@@ -83,6 +83,9 @@ class API1ProjectDirectoryRecordEditControllerFieldURLWithDataBaseTest extends B
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(true, $data['success']);
 
         # TEST AGAIN
 

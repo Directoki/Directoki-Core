@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
  *  @license 3-clause BSD
  *  @link https://github.com/Directoki/Directoki-Core/blob/master/LICENSE.txt
  */
-abstract class BaseTestWithDataBase extends WebTestCase
+abstract class BaseTestWithDataBase extends BaseTest
 {
 
 
@@ -21,9 +21,6 @@ abstract class BaseTestWithDataBase extends WebTestCase
      */
     protected $em;
 
-    protected $container;
-
-    protected $application;
 
     /**
      * {@inheritDoc}

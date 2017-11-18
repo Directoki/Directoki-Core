@@ -77,6 +77,7 @@ class API1ProjectDirectoryEditController extends API1ProjectDirectoryController
             $out =  array(
                 'code'=>400,
                 'response'=>array(
+                    'success'=>false,
                     'field_errors'=>[],
                 ),
             );
@@ -124,14 +125,14 @@ class API1ProjectDirectoryEditController extends API1ProjectDirectoryController
 
             return array(
                 'code'=>200,
-                'response'=>array('id'=>$record->getPublicId()),
+                'response'=>array('success'=>true,'id'=>$record->getPublicId()),
             );
 
         } else {
 
             return array(
                 'code'=>200,
-                'response'=>array(),
+                'response'=>array('success'=>true,),
             );
 
         }
@@ -150,6 +151,10 @@ class API1ProjectDirectoryEditController extends API1ProjectDirectoryController
     public function newRecordJSONPAction(string $projectId, string $directoryId, Request $request) {
         $data = $this->newRecordData($projectId, $directoryId, $request->query, $request);
         $callback = $request->get('q') ? $request->get('q') : 'callback';
+        $errorAs200 = $request->get('errorAs200') ? boolval($request->get('errorAs200')) : false;
+        if ($errorAs200) {
+            $data['code'] = 200;
+        }
         $response = new Response($callback."(".json_encode($data['response']).");");
         $response->setStatusCode($data['code']);
         $response->headers->set('Content-Type', 'application/javascript');

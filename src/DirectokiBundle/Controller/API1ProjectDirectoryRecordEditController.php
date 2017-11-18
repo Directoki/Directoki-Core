@@ -77,6 +77,7 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
             $out =  array(
                 'code'=>400,
                 'response'=>array(
+                    'success'=>false,
                     'field_errors'=>[],
                 ),
             );
@@ -109,13 +110,13 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
 
             return array(
                 'code'=>200,
-                'response'=>array(),
+                'response'=>array('success'=>true,),
             );
 
         } else {
             return array(
                 'code'=>200,
-                'response'=>array(),
+                'response'=>array('success'=>true,),
             );
         }
 
@@ -136,6 +137,10 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
     {
         $data = $this->editData($projectId, $directoryId, $recordId, $request->query, $request);
         $callback = $request->get('q') ? $request->get('q') : 'callback';
+        $errorAs200 = $request->get('errorAs200') ? boolval($request->get('errorAs200')) : false;
+        if ($errorAs200) {
+            $data['code'] = 200;
+        }
         $response = new Response($callback."(".json_encode($data['response']).");");
         $response->setStatusCode($data['code']);
         $response->headers->set('Content-Type', 'application/javascript');
@@ -156,8 +161,7 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
 
         //data
         $doctrine = $this->getDoctrine()->getManager();
-        $out = array();
-        
+
         if ($parameterBag->get('description')) {
 
             $event = $this->get('directoki_event_builder_service')->build(
@@ -188,15 +192,25 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
             $updateRecordCacheAction = new UpdateRecordCache($this->container);
             $updateRecordCacheAction->go($this->record);
 
+            return array(
+                'success'=>true,
+            );
+        } else {
+            return array(
+                'success'=>false,
+            );
         }
 
-        return $out;
     }
 
     // TODO newReportJSONAction
 
     public function newReportJSONPAction(string $projectId, string $directoryId, string $recordId, Request $request) {
         $callback = $request->get('q') ? $request->get('q') : 'callback';
+        $errorAs200 = $request->get('errorAs200') ? boolval($request->get('errorAs200')) : false;
+        if ($errorAs200) {
+            $data['code'] = 200;
+        }
         $response = new Response($callback."(".json_encode($this->newReportData($projectId, $directoryId, $recordId, $request->query, $request)).");");
         $response->headers->set('Content-Type', 'application/javascript');
         return $response;
