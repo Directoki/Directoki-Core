@@ -105,13 +105,16 @@ class FieldTypeEmail extends  BaseFieldType {
 
 
     public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event) {
-        $data = $parameterBag->has('field_'.$field->getPublicId().'_value');
-        if ($record) {
-            $value = $this->checkAndProcessValueForExistingRecord($data, $field, $record, $event);
-        } else {
-            $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $event);
+        if ($parameterBag->has('field_'.$field->getPublicId().'_value')) {
+            $data = $parameterBag->get('field_' . $field->getPublicId() . '_value');
+            if ($record) {
+                $value = $this->checkAndProcessValueForExistingRecord($data, $field, $record, $event);
+            } else {
+                $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $event);
+            }
+            return $value ? [$value] : [];
         }
-        return $value ? [ $value ] : [];
+        return [];
     }
 
 
