@@ -87,27 +87,9 @@ class FieldTypeEmail extends  BaseFieldType {
     }
 
     public function getEditFieldFormNewRecords( Field $field, Record $record, Event $event, $form, User $user = null, $approve = false ) {
-
-        // TODO see if value has changed before saving!! Can return array() if not.
-
-        $newValue = $form->get('value')->getData();
-
-        if ($newValue && !filter_var($newValue, FILTER_VALIDATE_EMAIL)) {
-            $form->get('value')->addError(new FormError('Please enter a valid email address'));
-            throw new DataValidationException();
-        }
-
-        $newRecordHasFieldValues = new RecordHasFieldEmailValue();
-        $newRecordHasFieldValues->setRecord($record);
-        $newRecordHasFieldValues->setField($field);
-        $newRecordHasFieldValues->setValue($newValue);
-        $newRecordHasFieldValues->setCreationEvent($event);
-        if ($approve) {
-            $newRecordHasFieldValues->setApprovedAt(new \DateTime());
-            $newRecordHasFieldValues->setApprovalEvent($event);
-        }
-
-        return array ($newRecordHasFieldValues);
+        $data = $form->get('value')->getData();
+        $value = $this->checkAndProcessValueForExistingRecord($data, $field, $record, $event, $approve, $form->get('value'));
+        return $value ? [ $value ] : [];
     }
 
     public function getViewTemplate() {
@@ -124,52 +106,26 @@ class FieldTypeEmail extends  BaseFieldType {
 
     public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event) {
         if ($parameterBag->has('field_'.$field->getPublicId().'_value')) {
-            $currentValue = '';
-            if ( $record !== null ) {
-                $latestValueObject = $this->getLatestFieldValue($field, $record);
-                $currentValue = $latestValueObject->getValue();
+            $data = $parameterBag->get('field_' . $field->getPublicId() . '_value');
+            if ($record) {
+                $value = $this->checkAndProcessValueForExistingRecord($data, $field, $record, $event);
+            } else {
+                $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $event);
             }
-            $newValue = $parameterBag->get('field_'.$field->getPublicId().'_value');
-            if ($newValue != $currentValue) {
-                if ($newValue && !filter_var($newValue, FILTER_VALIDATE_EMAIL)) {
-                    throw new DataValidationException('Please set a valid email!');
-                }
-                $newRecordHasFieldValues = new RecordHasFieldEmailValue();
-                $newRecordHasFieldValues->setRecord($record);
-                $newRecordHasFieldValues->setField($field);
-                $newRecordHasFieldValues->setValue($newValue);
-                $newRecordHasFieldValues->setCreationEvent($event);
-                return array($newRecordHasFieldValues);
-            }
+            return $value ? [$value] : [];
         }
-        return array();
+        return [];
     }
 
 
     public function processInternalAPI1Record(BaseFieldValue $fieldValueEdit, Directory $directory, Record $record = null, Field $field, Event $event, $approve=false) {
-        if ($fieldValueEdit->getNewValue()) {
-            $currentValue = '';
-            if ( $record !== null ) {
-                $latestValueObject = $this->getLatestFieldValue($field, $record);
-                $currentValue = $latestValueObject->getValue();
-            }
-            $newValue = $fieldValueEdit->getNewValue();
-            if ($newValue != $currentValue) {
-                if ($newValue && !filter_var($newValue, FILTER_VALIDATE_EMAIL)) {
-                    throw new DataValidationException('Please set a valid email!');
-                }
-                $newRecordHasFieldValues = new RecordHasFieldEmailValue();
-                $newRecordHasFieldValues->setRecord($record);
-                $newRecordHasFieldValues->setField($field);
-                $newRecordHasFieldValues->setValue($newValue);
-                $newRecordHasFieldValues->setCreationEvent($event);
-                if ($approve) {
-                    $newRecordHasFieldValues->setApprovalEvent($event);
-                }
-                return array($newRecordHasFieldValues);
-            }
+        $data = $fieldValueEdit->getNewValue();
+        if ($record) {
+            $value = $this->checkAndProcessValueForExistingRecord($data, $field, $record, $event, $approve);
+        } else {
+            $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $event, $approve);
         }
-        return array();
+        return $value ? [ $value ] : [];
     }
 
     public function parseCSVLineData( Field $field, $fieldConfig, $lineData,  Record $record, Event $creationEvent, $published=false ) {
@@ -177,26 +133,12 @@ class FieldTypeEmail extends  BaseFieldType {
         $column = intval($fieldConfig['column']);
         $data  = $lineData[$column];
 
-        if ($data) {
+        $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $creationEvent, $published);
+        return $value ? new ImportCSVLineResult(
+            $data,
+            array($value)
+        ) : null;
 
-            if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
-                throw new DataValidationException('Please set a valid email!');
-            }
-
-            $newRecordHasFieldValues = new RecordHasFieldEmailValue();
-            $newRecordHasFieldValues->setRecord($record);
-            $newRecordHasFieldValues->setField($field);
-            $newRecordHasFieldValues->setValue($data);
-            $newRecordHasFieldValues->setCreationEvent($creationEvent);
-            if ($published) {
-                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
-            }
-
-            return new ImportCSVLineResult(
-                $data,
-                array($newRecordHasFieldValues)
-            );
-        }
     }
 
 
@@ -216,24 +158,8 @@ class FieldTypeEmail extends  BaseFieldType {
     public function processNewRecordForm(Field $field, Record $record,Form $form, Event $creationEvent, $published = false)
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
-        if ($data) {
-
-            if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
-                $form->get('field_'.$field->getPublicId())->addError(new FormError('Please enter a valid email address'));
-                throw new DataValidationException();
-            }
-
-            $newRecordHasFieldValues = new RecordHasFieldEmailValue();
-            $newRecordHasFieldValues->setRecord($record);
-            $newRecordHasFieldValues->setField($field);
-            $newRecordHasFieldValues->setValue($data);
-            $newRecordHasFieldValues->setCreationEvent($creationEvent);
-            if ($published) {
-                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
-            }
-            return array($newRecordHasFieldValues);
-        }
-        return array();
+        $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $creationEvent, $published, $form->get('field_'.$field->getPublicId()));
+        return $value ? [ $value ] : [];
     }
 
     public function getViewTemplateNewRecordForm() {
@@ -280,22 +206,8 @@ class FieldTypeEmail extends  BaseFieldType {
     public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
-        if ($data != $this->getLatestFieldValue($field, $record)->getValue()) {
-            if ($data && !filter_var($data, FILTER_VALIDATE_EMAIL)) {
-                $form->get('field_'.$field->getPublicId())->addError(new FormError('Please enter a valid email address'));
-                throw new DataValidationException();
-            }
-            $newRecordHasFieldValues = new RecordHasFieldEmailValue();
-            $newRecordHasFieldValues->setRecord($record);
-            $newRecordHasFieldValues->setField($field);
-            $newRecordHasFieldValues->setValue($data);
-            $newRecordHasFieldValues->setCreationEvent($creationEvent);
-            if ($published) {
-                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
-            }
-            return array($newRecordHasFieldValues);
-        }
-        return array();
+        $value = $this->checkAndProcessValueForExistingRecord($data, $field, $record, $creationEvent, $published, $form->get('field_'.$field->getPublicId()));
+        return $value ? [ $value ] : [];
     }
 
     public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
@@ -314,22 +226,52 @@ class FieldTypeEmail extends  BaseFieldType {
     public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
-        if ($data) {
-            if (!filter_var($data, FILTER_VALIDATE_EMAIL)) {
-                $form->get('field_'.$field->getPublicId())->addError(new FormError('Please enter a valid email address'));
-                throw new DataValidationException();
-            }
-            $newRecordHasFieldValues = new RecordHasFieldEmailValue();
-            $newRecordHasFieldValues->setRecord($record);
-            $newRecordHasFieldValues->setField($field);
-            $newRecordHasFieldValues->setValue($data);
-            $newRecordHasFieldValues->setCreationEvent($creationEvent);
-            if ($published) {
-                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
-            }
-            return array($newRecordHasFieldValues);
-        }
-        return array();
+        $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $creationEvent, $published, $form->get('field_'.$field->getPublicId()));
+        return $value ? [ $value ] : [];
     }
+
+    protected function checkAndProcessValueForExistingRecord($newValue, Field $field, Record $record, Event $event, $published = false, $formField = null)
+    {
+        $newValue = trim($newValue);
+        $currentValue = '';
+        if ( $record !== null ) {
+            $latestValueObject = $this->getLatestFieldValue($field, $record);
+            $currentValue = $latestValueObject->getValue();
+        }
+        if ($newValue != $currentValue) {
+            return $this->processValue($newValue, $field, $record, $event, $published, $formField);
+        }
+        return null;
+    }
+
+    protected function checkAndProcessValueForNewRecord($newValue, Field $field, Record $record = null, Event $creationEvent, $published = false, $formField = null)
+    {
+        $newValue = trim($newValue);
+        if ($newValue) {
+            return $this->processValue($newValue, $field, $record, $creationEvent, $published, $formField);
+        }
+        return null;
+    }
+
+    protected function processValue($value, Field $field, Record $record = null, Event $event, $published = false, $formField = null)
+    {
+        if ($value && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            if ($formField) {
+                $formField->addError(new FormError('Please enter a valid email address'));
+            }
+            throw new DataValidationException('Please set a valid email!');
+        }
+        $newRecordHasFieldValues = new RecordHasFieldEmailValue();
+        $newRecordHasFieldValues->setRecord($record);
+        $newRecordHasFieldValues->setField($field);
+        $newRecordHasFieldValues->setValue($value);
+        $newRecordHasFieldValues->setCreationEvent($event);
+        if ($published) {
+            $newRecordHasFieldValues->setApprovalEvent($event);
+        }
+        return $newRecordHasFieldValues;
+    }
+
+
 
 }
