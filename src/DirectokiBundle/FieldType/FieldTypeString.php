@@ -96,21 +96,8 @@ class FieldTypeString extends  BaseFieldType {
 
 
     public function getEditFieldFormNewRecords( Field $field, Record $record, Event $event, $form, User $user = null, $approve = false ) {
-
-        // TODO see if value has changed before saving!! Can return array() if not.
-
-
-        $newRecordHasFieldValues = new RecordHasFieldStringValue();
-        $newRecordHasFieldValues->setRecord($record);
-        $newRecordHasFieldValues->setField($field);
-        $newRecordHasFieldValues->setValue(self::filterValue($form->get('value')->getData()));
-        $newRecordHasFieldValues->setCreationEvent($event);
-        if ($approve) {
-            $newRecordHasFieldValues->setApprovedAt(new \DateTime());
-            $newRecordHasFieldValues->setApprovalEvent($event);
-        }
-
-        return array ($newRecordHasFieldValues);
+        $value = $this->checkAndProcessValueForExistingRecord($form->get('value')->getData(), $field, $record, $event, $approve, $form->get('value'));
+        return $value ? [ $value ] : [];
     }
 
     public function getViewTemplate() {
@@ -124,45 +111,23 @@ class FieldTypeString extends  BaseFieldType {
 
     public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event) {
         if ($parameterBag->has('field_'.$field->getPublicId().'_value')) {
-            $currentValue = '';
-            if ( $record !== null ) {
-                $latestValueObject = $this->getLatestFieldValue($field, $record);
-                $currentValue = self::filterValue($latestValueObject->getValue());
+            if ($record) {
+                $value = $this->checkAndProcessValueForExistingRecord($parameterBag->get('field_' . $field->getPublicId() . '_value'), $field, $record, $event);
+            } else {
+                $value = $this->checkAndProcessValueForNewRecord($parameterBag->get('field_' . $field->getPublicId() . '_value'), $field, $record, $event);
             }
-            $newValue = self::filterValue($parameterBag->get('field_'.$field->getPublicId().'_value'));
-            if ($newValue != $currentValue) {
-                $newRecordHasFieldValues = new RecordHasFieldStringValue();
-                $newRecordHasFieldValues->setRecord($record);
-                $newRecordHasFieldValues->setField($field);
-                $newRecordHasFieldValues->setValue($newValue);
-                $newRecordHasFieldValues->setCreationEvent($event);
-                return array($newRecordHasFieldValues);
-            }
+            return $value ? [$value] : [];
         }
         return array();
     }
 
     public function processInternalAPI1Record(BaseFieldValue $fieldValueEdit, Directory $directory, Record $record = null, Field $field, Event $event, $approve = false) {
-        if ($fieldValueEdit->getNewValue()) {
-            $currentValue = '';
-            if ( $record !== null ) {
-                $latestValueObject = $this->getLatestFieldValue($field, $record);
-                $currentValue = self::filterValue($latestValueObject->getValue());
-            }
-            $newValue = self::filterValue($fieldValueEdit->getNewValue());
-            if ($newValue != $currentValue) {
-                $newRecordHasFieldValues = new RecordHasFieldStringValue();
-                $newRecordHasFieldValues->setRecord($record);
-                $newRecordHasFieldValues->setField($field);
-                $newRecordHasFieldValues->setValue($newValue);
-                $newRecordHasFieldValues->setCreationEvent($event);
-                if ($approve) {
-                    $newRecordHasFieldValues->setApprovalEvent($event);
-                }
-                return array($newRecordHasFieldValues);
-            }
+        if ($record) {
+            $value = $this->checkAndProcessValueForExistingRecord($fieldValueEdit->getNewValue(), $field, $record, $event, $approve);
+        } else {
+            $value = $this->checkAndProcessValueForNewRecord($fieldValueEdit->getNewValue(), $field, $record, $event, $approve);
         }
-        return array();
+        return $value ? [ $value ] : [];
     }
 
     public function parseCSVLineData( Field $field, $fieldConfig, $lineData,  Record $record, Event $creationEvent, $published=false) {
@@ -170,21 +135,11 @@ class FieldTypeString extends  BaseFieldType {
         $column = intval($fieldConfig['column']);
         $data  = self::filterValue($lineData[$column]);
 
-        if ($data) {
-            $newRecordHasFieldValues = new RecordHasFieldStringValue();
-            $newRecordHasFieldValues->setRecord($record);
-            $newRecordHasFieldValues->setField($field);
-            $newRecordHasFieldValues->setValue($data);
-            $newRecordHasFieldValues->setCreationEvent($creationEvent);
-            if ($published) {
-                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
-            }
-
-            return new ImportCSVLineResult(
-                $data,
-                array($newRecordHasFieldValues)
-            );
-        }
+        $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $creationEvent, $published);
+        return $value ? new ImportCSVLineResult(
+            $data,
+            array($value)
+        ) : [];
     }
 
     public function getDataForCache( Field $field, Record $record ) {
@@ -194,7 +149,7 @@ class FieldTypeString extends  BaseFieldType {
 
     public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
     {
-        $formBuilderInterface->add($field->getPublicId(), TextType::class, array(
+        $formBuilderInterface->add('field_'.$field->getPublicId(), TextType::class, array(
             'required' => false,
             'label'=>$field->getTitle(),
         ));
@@ -202,19 +157,9 @@ class FieldTypeString extends  BaseFieldType {
 
     public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
-        $data = self::filterValue($form->get($field->getPublicId())->getData());
-        if ($data) {
-            $newRecordHasFieldValues = new RecordHasFieldStringValue();
-            $newRecordHasFieldValues->setRecord($record);
-            $newRecordHasFieldValues->setField($field);
-            $newRecordHasFieldValues->setValue($data);
-            $newRecordHasFieldValues->setCreationEvent($creationEvent);
-            if ($published) {
-                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
-            }
-            return array($newRecordHasFieldValues);
-        }
-        return array();
+        $data = $form->get('field_'.$field->getPublicId())->getData();
+        $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $creationEvent, $published, $form->get('field_'.$field->getPublicId()));
+        return $value ? [ $value ] : [];
     }
 
     public function getViewTemplateNewRecordForm() {
@@ -268,20 +213,9 @@ class FieldTypeString extends  BaseFieldType {
 
     public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
-        $data = self::filterValue($form->get('field_'.$field->getPublicId())->getData());
-        $currentValue = self::filterValue($this->getLatestFieldValue($field, $record)->getValue());
-        if ($data != $currentValue) {
-            $newRecordHasFieldValues = new RecordHasFieldStringValue();
-            $newRecordHasFieldValues->setRecord($record);
-            $newRecordHasFieldValues->setField($field);
-            $newRecordHasFieldValues->setValue($data);
-            $newRecordHasFieldValues->setCreationEvent($creationEvent);
-            if ($published) {
-                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
-            }
-            return array($newRecordHasFieldValues);
-        }
-        return array();
+        $data = $form->get('field_'.$field->getPublicId())->getData();
+        $value = $this->checkAndProcessValueForExistingRecord($data, $field, $record, $creationEvent, $published, $form->get('field_'.$field->getPublicId()));
+        return $value ? [ $value ] : [];
     }
 
     public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
@@ -299,23 +233,49 @@ class FieldTypeString extends  BaseFieldType {
 
     public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
     {
-        $data = self::filterValue($form->get('field_'.$field->getPublicId())->getData());
-        if ($data) {
-            $newRecordHasFieldValues = new RecordHasFieldStringValue();
-            $newRecordHasFieldValues->setRecord($record);
-            $newRecordHasFieldValues->setField($field);
-            $newRecordHasFieldValues->setValue($data);
-            $newRecordHasFieldValues->setCreationEvent($creationEvent);
-            if ($published) {
-                $newRecordHasFieldValues->setApprovalEvent($creationEvent);
-            }
-            return array($newRecordHasFieldValues);
-        }
-        return array();
+        $data = $form->get('field_'.$field->getPublicId())->getData();
+        $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $creationEvent, $published, $form->get('field_'.$field->getPublicId()));
+        return $value ? [ $value ] : [];
     }
 
     public static function filterValue($value) {
         return trim(str_replace("\r","", str_replace("\n","", $value)));
+    }
+
+    protected function checkAndProcessValueForExistingRecord($newValue, Field $field, Record $record, Event $event, $published = false, $formField = null)
+    {
+        $newValue = self::filterValue($newValue);
+        $currentValue = '';
+        if ( $record !== null ) {
+            $latestValueObject = $this->getLatestFieldValue($field, $record);
+            $currentValue = self::filterValue($latestValueObject->getValue());
+        }
+        if ($newValue != $currentValue) {
+            return $this->processValue($newValue, $field, $record, $event, $published, $formField);
+        }
+        return null;
+    }
+
+    protected function checkAndProcessValueForNewRecord($newValue, Field $field, Record $record = null, Event $creationEvent, $published = false, $formField = null)
+    {
+        $newValue = self::filterValue($newValue);
+        if ($newValue) {
+            return $this->processValue($newValue, $field, $record, $creationEvent, $published, $formField);
+        }
+        return null;
+    }
+
+    protected function processValue($value, Field $field, Record $record = null, Event $event, $published = false, $formField = null)
+    {
+        $newRecordHasFieldValues = new RecordHasFieldStringValue();
+        $newRecordHasFieldValues->setRecord($record);
+        $newRecordHasFieldValues->setField($field);
+        $newRecordHasFieldValues->setValue($value);
+        $newRecordHasFieldValues->setCreationEvent($event);
+        if ($published) {
+            $newRecordHasFieldValues->setApprovalEvent($event);
+        }
+        return $newRecordHasFieldValues;
     }
 
 
