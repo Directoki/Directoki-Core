@@ -29,7 +29,7 @@ class PublicRecordNewType extends AbstractType {
 
             $fieldType = $options['container']->get('directoki_field_type_service')->getByField($field);
 
-            $fieldType->addToPublicNewRecordForm($field, $builder);
+            $fieldType->addToPublicNewRecordForm($field, $builder, $options['locale']);
 
         }
 
@@ -74,6 +74,7 @@ class PublicRecordNewType extends AbstractType {
             'user' => null,
             'fields' => null,
             'container' => null,
+            'locale' => null,
         ));
     }
 

@@ -19,6 +19,9 @@ class AdminProjectDirectoryFieldController extends Controller
     /** @var Project */
     protected $project;
 
+    /** @var Locale */
+    protected $locale;
+
     /** @var Directory */
     protected $directory;
 
@@ -34,6 +37,10 @@ class AdminProjectDirectoryFieldController extends Controller
             throw new  NotFoundHttpException('Not found');
         }
         $this->denyAccessUnlessGranted(ProjectVoter::ADMIN, $this->project);
+        // load
+        $repository = $doctrine->getRepository('DirectokiBundle:Locale');
+        $this->locale = $repository->findOneByProject($this->project);
+        // TODO load by user input, not just selecting one at random!
         // load
         $repository = $doctrine->getRepository('DirectokiBundle:Directory');
         $this->directory = $repository->findOneBy(array('project'=>$this->project, 'publicId'=>$directoryId));
@@ -57,13 +64,16 @@ class AdminProjectDirectoryFieldController extends Controller
 
         $doctrine = $this->getDoctrine()->getManager();
         $repo = $doctrine->getRepository('DirectokiBundle:SelectValue');
-        $selectValues = $repo->findByField($this->field, array('title'=>'ASC'));
+        $selectValues = $repo->findByFieldSortForLocale($this->field, $this->locale);
+        $locales = $doctrine->getRepository('DirectokiBundle:Locale')->findByProject($this->project, array('title'=>'ASC'));
+
 
         return $this->render('DirectokiBundle:AdminProjectDirectoryField:selectValues.html.twig', array(
             'project' => $this->project,
             'directory' => $this->directory,
             'field' => $this->field,
             'selectValues' => $selectValues,
+            'locales' => $locales,
         ));
 
     }

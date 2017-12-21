@@ -26,7 +26,7 @@ class RecordNewType extends AbstractType {
 
             $fieldType = $options['container']->get('directoki_field_type_service')->getByField($field);
 
-            $fieldType->addToNewRecordForm($field, $builder);
+            $fieldType->addToNewRecordForm($field, $builder, $options['locale']);
 
         }
 
@@ -56,6 +56,7 @@ class RecordNewType extends AbstractType {
         $resolver->setDefaults(array(
             'container' => null,
             'fields' => null,
+            'locale' => null,
         ));
     }
 

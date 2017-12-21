@@ -28,7 +28,7 @@ class RecordHasFieldMultiSelectValueType extends BaseRecordHasFieldValueType {
         $repoSelectValue = $options['container']->get('doctrine')->getManager()->getRepository('DirectokiBundle:SelectValue');
         $repoRecordHasFieldMultiSelectValue = $options['container']->get('doctrine')->getManager()->getRepository('DirectokiBundle:RecordHasFieldMultiSelectValue');
 
-        foreach($repoSelectValue->findBy(array('field'=>$options['field']), array('title'=>'asc')) as $selectValue) {
+        foreach($repoSelectValue->findByFieldSortForLocale($options['field'],$options['locale']) as $selectValue) {
             $this->selectValues[] = $selectValue;
             $this->selectValuesCurrentValue[$selectValue->getPublicId()] = $repoRecordHasFieldMultiSelectValue->doesRecordHaveFieldHaveValue($options['record'], $options['field'], $selectValue);
         }
@@ -37,7 +37,7 @@ class RecordHasFieldMultiSelectValueType extends BaseRecordHasFieldValueType {
 
             $builder->add('value_'. $selectValue->getPublicId(), CheckboxType::class, array(
                 'required' => false,
-                'label'=>$selectValue->getTitle(),
+                'label'=>$selectValue->getCachedTitleForLocale($options['locale']),
                 'data' =>$this->selectValuesCurrentValue[$selectValue->getPublicId()],
             ));
 
@@ -57,6 +57,7 @@ class RecordHasFieldMultiSelectValueType extends BaseRecordHasFieldValueType {
             'container'=>null,
             'field'=>null,
             'record'=>null,
+            'locale'=>null,
         ));
     }
 

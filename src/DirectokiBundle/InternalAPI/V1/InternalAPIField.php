@@ -18,6 +18,8 @@ use DirectokiBundle\InternalAPI\V1\Model\FieldValueText;
 use DirectokiBundle\InternalAPI\V1\Model\RecordEdit;
 
 use DirectokiBundle\InternalAPI\V1\Model\SelectValue;
+use DirectokiBundle\LocaleMode\BaseLocaleMode;
+use DirectokiBundle\LocaleMode\SingleLocaleMode;
 
 
 /**
@@ -36,16 +38,19 @@ class InternalAPIField
     /** @var  Directory */
     protected $directory;
 
+    /** @var  BaseLocaleMode */
+    protected $localeMode;
 
     /** @var \DirectokiBundle\Entity\Field */
     protected $field;
 
-    function __construct($container, Project $project, Directory $directory, \DirectokiBundle\Entity\Field $field)
+    function __construct($container, Project $project, Directory $directory, \DirectokiBundle\Entity\Field $field, BaseLocaleMode $localeMode)
     {
         $this->container = $container;
         $this->project = $project;
         $this->directory = $directory;
         $this->field = $field;
+        $this->localeMode = $localeMode;
     }
 
 
@@ -58,8 +63,13 @@ class InternalAPIField
         $out = array();
         $doctrine = $this->container->get('doctrine')->getManager();
         $repo = $doctrine->getRepository('DirectokiBundle:SelectValue');
-        foreach($repo->findByField($this->field, array('title'=>'ASC')) as $selectValue) {
-            $out[] = new SelectValue($selectValue->getPublicId(), $selectValue->getTitle());
+        // TODO sort by title ???
+        foreach($repo->findByField($this->field, array('id'=>'ASC')) as $selectValue) {
+            if ($this->localeMode instanceof SingleLocaleMode) {
+                $out[] = new SelectValue($selectValue->getPublicId(), $selectValue->getCachedTitleForLocale($this->localeMode->getLocale()));
+            } else {
+                // TODO ???????
+            }
         }
         return $out;
 
@@ -71,14 +81,17 @@ class InternalAPIField
             throw new \Exception('Not a Select Field!');
         }
 
-        $out = array();
         $doctrine = $this->container->get('doctrine')->getManager();
-        $repo = $doctrine->getRepository('DirectokiBundle:SelectValue');
-        $field = $repo->findOneBy(array('field'=>$this->field, 'publicId'=>$valueId));
-        if (!$field) {
+        $selectValueRepo = $doctrine->getRepository('DirectokiBundle:SelectValue');
+        $selectValue = $selectValueRepo->findOneBy(array('field'=>$this->field, 'publicId'=>$valueId));
+        if (!$selectValue) {
             throw new \Exception('Value not found');
         }
-        return new SelectValue($field->getPublicId(), $field->getTitle());
+        if ($this->localeMode instanceof SingleLocaleMode) {
+            return new SelectValue($selectValue->getPublicId(), $selectValue->getCachedTitleForLocale($this->localeMode->getLocale()));
+        } else {
+            // TODO ???????
+        }
 
     }
 

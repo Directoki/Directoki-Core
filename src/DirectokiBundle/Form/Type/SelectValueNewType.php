@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackValidator;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 
 /**
@@ -17,11 +18,15 @@ class SelectValueNewType extends AbstractType {
 
     public function buildForm(FormBuilderInterface $builder, array $options) {
 
+        foreach($options['locales'] as $locale) {
 
-        $builder->add('title', TextType::class, array(
-            'required' => true,
-            'label'=>'Title',
-        ));
+            $builder->add('title_'.$locale->getId(), TextType::class, array(
+                'required' => true,
+                'label'=>'Title ('.$locale->getTitle().')',
+                'mapped'=>false,
+            ));
+
+        }
 
     }
 
@@ -29,9 +34,11 @@ class SelectValueNewType extends AbstractType {
         return 'tree';
     }
 
-    public function getDefaultOptions(array $options) {
-        return array(
-        );
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults(array(
+            'locales' => null,
+        ));
     }
 
 }

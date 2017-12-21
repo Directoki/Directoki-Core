@@ -5,6 +5,7 @@ namespace DirectokiBundle\Command;
 
 use DirectokiBundle\Cron\DeleteOldInformation;
 use DirectokiBundle\Cron\ExternalCheck;
+use DirectokiBundle\Cron\UpdateFieldCache;
 use DirectokiBundle\Cron\UpdateRecordCache;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -40,6 +41,7 @@ class CronCommand extends ContainerAwareCommand
         $cronCommands = array(
             new ExternalCheck($this->getContainer()),
             new UpdateRecordCache($this->getContainer()),
+            new UpdateFieldCache($this->getContainer()),
             new DeleteOldInformation($this->getContainer()),
         );
 
@@ -49,6 +51,12 @@ class CronCommand extends ContainerAwareCommand
             $output->writeln('Project: '. $project->getTitle());
             foreach($doctrine->getRepository('DirectokiBundle:Directory')->findBy(array('project'=>$project)) as $directory) {
                 $output->writeln('Directory: '. $directory->getTitleSingular());
+                foreach($doctrine->getRepository('DirectokiBundle:Field')->findBy(array('directory'=>$directory)) as $field) {
+                    $output->writeln('Field: '. $field->getPublicId());
+                    foreach($cronCommands as $cronCommand) {
+                        $cronCommand->runForField($field);
+                    }
+                }
                 foreach($doctrine->getRepository('DirectokiBundle:Record')->findBy(array('directory'=>$directory)) as $record) {
                     $output->writeln('Record: '. $record->getPublicId());
 

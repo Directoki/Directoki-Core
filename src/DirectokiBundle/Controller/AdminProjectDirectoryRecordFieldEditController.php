@@ -35,7 +35,7 @@ class AdminProjectDirectoryRecordFieldEditController extends AdminProjectDirecto
 
         $fieldType = $this->container->get('directoki_field_type_service')->getByField($this->field);
 
-        $form = $this->createForm($fieldType->getEditFieldFormClass($this->field, $this->record), null, $fieldType->getEditFieldFormOptions($this->field, $this->record));
+        $form = $this->createForm($fieldType->getEditFieldFormClass($this->field, $this->record, $this->locale), null, $fieldType->getEditFieldFormOptions($this->field, $this->record, $this->locale));
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {

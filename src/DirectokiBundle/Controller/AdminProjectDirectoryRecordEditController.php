@@ -150,6 +150,7 @@ class AdminProjectDirectoryRecordEditController extends AdminProjectDirectoryRec
         // Render!
         return $this->render('DirectokiBundle:AdminProjectDirectoryRecordEdit:moderate.html.twig', array(
             'project' => $this->project,
+            'locale' => $this->locale,
             'directory' => $this->directory,
             'record' => $this->record,
             'fields' => $fields,

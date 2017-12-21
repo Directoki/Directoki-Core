@@ -29,7 +29,7 @@ class PublicRecordEditType extends AbstractType {
 
             $fieldType = $options['container']->get('directoki_field_type_service')->getByField($field);
 
-            $fieldType->addToPublicEditRecordForm($options['record'], $field, $builder);
+            $fieldType->addToPublicEditRecordForm($options['record'], $field, $builder, $options['locale']);
 
         }
 
@@ -76,6 +76,7 @@ class PublicRecordEditType extends AbstractType {
             'fields' => null,
             'record' => null,
             'container' => null,
+            'locale' => null,
         ));
     }
 

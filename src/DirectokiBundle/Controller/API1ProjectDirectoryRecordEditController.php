@@ -66,7 +66,7 @@ class API1ProjectDirectoryRecordEditController extends API1ProjectDirectoryRecor
             $fieldType = $this->container->get( 'directoki_field_type_service' )->getByField( $field );
 
             try {
-                $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processAPI1Record($field, $this->record, $parameterBag, $event));
+                $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processAPI1Record($field, $this->record, $parameterBag, $event, $this->localeMode));
             } catch (DataValidationException $dataValidationError) {
                 $dataValidationErrors[$field->getPublicId()] = $dataValidationError;
             }

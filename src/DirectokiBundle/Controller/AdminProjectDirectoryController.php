@@ -19,6 +19,9 @@ class AdminProjectDirectoryController extends Controller
     /** @var Project */
     protected $project;
 
+    /** @var Locale */
+    protected $locale;
+
     /** @var Directory */
     protected $directory;
 
@@ -31,6 +34,10 @@ class AdminProjectDirectoryController extends Controller
             throw new  NotFoundHttpException('Not found');
         }
         $this->denyAccessUnlessGranted(ProjectVoter::ADMIN, $this->project);
+        // load
+        $repository = $doctrine->getRepository('DirectokiBundle:Locale');
+        $this->locale = $repository->findOneByProject($this->project);
+        // TODO load by user input, not just selecting one at random!
         // load
         $repository = $doctrine->getRepository('DirectokiBundle:Directory');
         $this->directory = $repository->findOneBy(array('project'=>$this->project, 'publicId'=>$directoryId));

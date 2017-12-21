@@ -25,6 +25,8 @@ use DirectokiBundle\InternalAPI\V1\Model\RecordReportEdit;
 use DirectokiBundle\InternalAPI\V1\Model\SelectValue;
 use DirectokiBundle\InternalAPI\V1\Result\EditRecordResult;
 use DirectokiBundle\InternalAPI\V1\Result\ReportRecordResult;
+use DirectokiBundle\LocaleMode\BaseLocaleMode;
+use DirectokiBundle\LocaleMode\SingleLocaleMode;
 use DirectokiBundle\Security\ProjectVoter;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -49,12 +51,16 @@ class InternalAPIRecord
     /** @var \DirectokiBundle\Entity\Record */
     protected $record;
 
-    function __construct($container, Project $project, Directory $directory, \DirectokiBundle\Entity\Record $record)
+    /** @var  BaseLocaleMode */
+    protected $localeMode;
+
+    function __construct($container, Project $project, Directory $directory, \DirectokiBundle\Entity\Record $record, BaseLocaleMode $localeMode)
     {
         $this->container = $container;
         $this->project = $project;
         $this->directory = $directory;
         $this->record = $record;
+        $this->localeMode = $localeMode;
     }
 
     function getPublished()
@@ -94,8 +100,13 @@ class InternalAPIRecord
                 $fieldValues[$field->getPublicId()] = new FieldValueLatLng($field->getPublicId(), $field->getTitle(), $tmp[0]->getLat(), $tmp[0]->getLng());
             } else if ($field->getFieldType() == FieldTypeMultiSelect::FIELD_TYPE_INTERNAL) {
                 $selectValues = array();
-                foreach($tmp as $t) {
-                    $selectValues[] = new SelectValue($t->getSelectValue()->getPublicId(), $t->getSelectValue()->getTitle());
+                foreach ($tmp as $t) {
+                    if ($this->localeMode instanceof SingleLocaleMode) {
+                        $selectValues[] = new SelectValue($t->getSelectValue()->getPublicId(), $t->getSelectValue()->getCachedTitleForLocale($this->localeMode->getLocale()));
+                    } else {
+                        // TODO ?????????
+                        $selectValues[] = new SelectValue($t->getSelectValue()->getPublicId(), '?');
+                    }
                 }
                 $fieldValues[$field->getPublicId()] = new FieldValueMultiSelect($field->getPublicId(), $field->getTitle(), $selectValues);
             }

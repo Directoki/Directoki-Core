@@ -2,6 +2,7 @@
 
 namespace DirectokiBundle\Controller;
 
+use DirectokiBundle\Entity\Locale;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\FieldType\StringFieldType;
 use DirectokiBundle\Security\ProjectVoter;
@@ -19,6 +20,9 @@ class AdminProjectDirectoryRecordController extends Controller
     /** @var Project */
     protected $project;
 
+    /** @var Locale */
+    protected $locale;
+
     /** @var Directory */
     protected $directory;
 
@@ -34,6 +38,10 @@ class AdminProjectDirectoryRecordController extends Controller
             throw new  NotFoundHttpException('Not found');
         }
         $this->denyAccessUnlessGranted(ProjectVoter::ADMIN, $this->project);
+        // load
+        $repository = $doctrine->getRepository('DirectokiBundle:Locale');
+        $this->locale = $repository->findOneByProject($this->project);
+        // TODO load by user input, not just selecting one at random!
         // load
         $repository = $doctrine->getRepository('DirectokiBundle:Directory');
         $this->directory = $repository->findOneBy(array('project'=>$this->project, 'publicId'=>$directoryId));
@@ -74,6 +82,7 @@ class AdminProjectDirectoryRecordController extends Controller
 
         return $this->render('DirectokiBundle:AdminProjectDirectoryRecord:index.html.twig', array(
             'project' => $this->project,
+            'locale' => $this->locale,
             'directory' => $this->directory,
             'record' => $this->record,
             'fields' => $fields,

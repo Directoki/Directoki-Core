@@ -77,10 +77,10 @@ class FieldTypeBoolean extends  BaseFieldType {
         return false;
     }
 
-    public function getEditFieldFormClass( Field $field, Record $record ) {
+    public function getEditFieldFormClass( Field $field, Record $record , Locale $locale) {
         return RecordHasFieldBooleanValueType::class;
     }
-    public function getEditFieldFormOptions( Field $field, Record $record ) {
+    public function getEditFieldFormOptions( Field $field, Record $record , Locale $locale) {
 
         $dataHasField = $this->getLatestFieldValue($field, $record);
 
@@ -117,7 +117,7 @@ class FieldTypeBoolean extends  BaseFieldType {
     }
 
 
-    public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event) {
+    public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event, BaseLocaleMode $localeMode) {
         if ($parameterBag->has('field_'.$field->getPublicId().'_value')) {
             $currentValue = '';
             if ( $record !== null ) {
@@ -152,7 +152,7 @@ class FieldTypeBoolean extends  BaseFieldType {
         $val = $this->getLatestFieldValue($field, $record);
         return $val ? array('value'=>$val->getValue()) : array();
     }
-    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $formBuilderInterface->add('field_'.$field->getPublicId(), CheckboxType::class, array(
             'required' => false,
@@ -161,7 +161,7 @@ class FieldTypeBoolean extends  BaseFieldType {
         ));
     }
 
-    public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data) {
@@ -206,7 +206,7 @@ class FieldTypeBoolean extends  BaseFieldType {
     }
 
 
-    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $formBuilderInterface->add('field_'.$field->getPublicId(), CheckboxType::class, array(
             'required' => false,
@@ -221,7 +221,7 @@ class FieldTypeBoolean extends  BaseFieldType {
         return '@Directoki/FieldType/Boolean/publicEditRecordForm.html.twig';
     }
 
-    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data != $this->getLatestFieldValue($field, $record)->getValue()) {
@@ -238,7 +238,7 @@ class FieldTypeBoolean extends  BaseFieldType {
         return array();
     }
 
-    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $formBuilderInterface->add('field_'.$field->getPublicId(), CheckboxType::class, array(
             'required' => false,
@@ -252,7 +252,7 @@ class FieldTypeBoolean extends  BaseFieldType {
         return '@Directoki/FieldType/Boolean/publicNewRecordForm.html.twig';
     }
 
-    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         if ($data) {

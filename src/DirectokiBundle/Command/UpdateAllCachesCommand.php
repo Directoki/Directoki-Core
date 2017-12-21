@@ -3,6 +3,7 @@
 namespace DirectokiBundle\Command;
 
 use DirectokiBundle\Action\UpdateRecordCache;
+use DirectokiBundle\Cron\UpdateFieldCache;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,6 +31,7 @@ class UpdateAllCachesCommand extends ContainerAwareCommand
         }
 
         $updateRecordCache = new UpdateRecordCache($this->getContainer());
+        $updateFieldCache = new UpdateFieldCache($this->getContainer());
 
 
         $doctrine = $this->getContainer()->get('doctrine')->getManager();
@@ -38,6 +40,10 @@ class UpdateAllCachesCommand extends ContainerAwareCommand
             $output->writeln('Project: '. $project->getTitle());
             foreach($doctrine->getRepository('DirectokiBundle:Directory')->findBy(array('project'=>$project)) as $directory) {
                 $output->writeln('Directory: '. $directory->getTitleSingular());
+                foreach($doctrine->getRepository('DirectokiBundle:Field')->findBy(array('directory'=>$directory)) as $field) {
+                    $output->writeln('Field: '. $field->getPublicId());
+                    $updateFieldCache->runForField($field);
+                }
                 foreach($doctrine->getRepository('DirectokiBundle:Record')->findBy(array('directory'=>$directory)) as $record) {
                     $output->writeln('Record: '. $record->getPublicId());
                     $updateRecordCache->go($record);

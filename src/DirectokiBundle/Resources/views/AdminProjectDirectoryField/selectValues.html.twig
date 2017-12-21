@@ -26,7 +26,9 @@
 			<thead>
 			<tr>
 				<th>Id</th>
-				<th>Title</th>
+				{%  for locale in locales|slice(0,5) %}
+					<th>Title ({{  locale.title }})</th>
+				{%  endfor %}
 				<th>&nbsp;</th>
 			</tr>
 			</thead>
@@ -36,9 +38,11 @@
 					<td>
 						{{ selectValue.publicId }}
 					</td>
-					<td>
-						{{  selectValue.title }}
-					</td>
+					{%  for locale in locales|slice(0,5) %}
+						<td>
+							{{  selectValue.getCachedTitleForLocale(locale) }}
+						</td>
+					{%  endfor %}
 					<td>
 						&nbsp;
 					</td>

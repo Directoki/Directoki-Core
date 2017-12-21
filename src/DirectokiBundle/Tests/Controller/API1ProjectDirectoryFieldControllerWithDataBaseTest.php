@@ -3,14 +3,17 @@
 
 namespace DirectokiBundle\Tests\Controller;
 
+use DirectokiBundle\Cron\UpdateFieldCache;
 use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Field;
+use DirectokiBundle\Entity\Locale;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasFieldMultiSelectValue;
 use DirectokiBundle\Entity\RecordHasFieldURLValue;
 use DirectokiBundle\Entity\SelectValue;
+use DirectokiBundle\Entity\SelectValueHasTitle;
 use DirectokiBundle\FieldType\FieldTypeString;
 use JMBTechnology\UserAccountsBundle\Entity\User;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
@@ -158,6 +161,13 @@ class API1ProjectDirectoryFieldControllerWithDataBaseTest extends BaseTestWithDa
         $event->setUser($user);
         $this->em->persist($event);
 
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
         $directory = new Directory();
         $directory->setPublicId('resource');
         $directory->setTitleSingular('Resource');
@@ -177,8 +187,14 @@ class API1ProjectDirectoryFieldControllerWithDataBaseTest extends BaseTestWithDa
         $selectValue = new SelectValue();
         $selectValue->setField($field);
         $selectValue->setCreationEvent($event);
-        $selectValue->setTitle('PHP');
         $this->em->persist($selectValue);
+
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('PHP');
+        $this->em->persist($selectValueHasTitle);
 
         $record = new Record();
         $record->setDirectory($directory);
@@ -187,10 +203,13 @@ class API1ProjectDirectoryFieldControllerWithDataBaseTest extends BaseTestWithDa
 
         $this->em->flush();
 
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
+
         # CALL API
         $client = $this->container->get('test.client');
 
-        $client->request('GET', '/api1/project/test1/directory/resource/field/tech/selectValues.json');
+        $client->request('GET', '/api1/project/test1/directory/resource/field/tech/selectValues.json?locale=en_GB');
 
         $this->assertEquals(200, $client->getResponse()->getStatusCode());
 

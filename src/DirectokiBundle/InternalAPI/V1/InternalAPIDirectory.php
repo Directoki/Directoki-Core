@@ -31,6 +31,8 @@ use DirectokiBundle\InternalAPI\V1\Model\RecordCreate;
 use DirectokiBundle\InternalAPI\V1\Model\SelectValue;
 use DirectokiBundle\InternalAPI\V1\Query\RecordsInDirectoryQuery;
 use DirectokiBundle\InternalAPI\V1\Result\CreateRecordResult;
+use DirectokiBundle\LocaleMode\BaseLocaleMode;
+use DirectokiBundle\LocaleMode\SingleLocaleMode;
 use DirectokiBundle\Security\ProjectVoter;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -51,13 +53,16 @@ class InternalAPIDirectory
     /** @var  Directory */
     protected $directory;
 
+    /** @var  BaseLocaleMode */
+    protected $localeMode;
 
 
-    function __construct($container, Project $project, Directory $directory)
+    function __construct($container, Project $project, Directory $directory, BaseLocaleMode $localeMode)
     {
         $this->container = $container;
         $this->project = $project;
         $this->directory = $directory;
+        $this->localeMode = $localeMode;
     }
 
     /**
@@ -73,7 +78,7 @@ class InternalAPIDirectory
             throw new \Exception("Not Found Record");
         }
 
-        return new InternalAPIRecord($this->container, $this->project, $this->directory, $record);
+        return new InternalAPIRecord($this->container, $this->project, $this->directory, $record, $this->localeMode);
     }
 
 
@@ -90,7 +95,7 @@ class InternalAPIDirectory
             throw new \Exception("Not Found Field");
         }
 
-        return new InternalAPIField($this->container, $this->project, $this->directory, $field);
+        return new InternalAPIField($this->container, $this->project, $this->directory, $field, $this->localeMode);
     }
 
 
@@ -141,7 +146,12 @@ class InternalAPIDirectory
                 } else if ($field->getFieldType() == FieldTypeMultiSelect::FIELD_TYPE_INTERNAL) {
                     $selectValues = array();
                     foreach ($tmp as $t) {
-                        $selectValues[] = new SelectValue($t->getSelectValue()->getPublicId(), $t->getSelectValue()->getTitle());
+                        if ($this->localeMode instanceof SingleLocaleMode) {
+                            $selectValues[] = new SelectValue($t->getSelectValue()->getPublicId(), $t->getSelectValue()->getCachedTitleForLocale($this->localeMode->getLocale()));
+                        } else {
+                            // TODO ?????????
+                            $selectValues[] = new SelectValue($t->getSelectValue()->getPublicId(), '?');
+                        }
                     }
                     $fieldValues[$field->getPublicId()] = new FieldValueMultiSelect($field->getPublicId(), $field->getTitle(), $selectValues);
                 }

@@ -3,6 +3,7 @@
 
 namespace DirectokiBundle\Tests\Controller;
 
+use DirectokiBundle\Cron\UpdateFieldCache;
 use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Field;
@@ -11,6 +12,8 @@ use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasFieldMultiSelectValue;
 use DirectokiBundle\Entity\RecordHasFieldURLValue;
 use DirectokiBundle\Entity\SelectValue;
+use DirectokiBundle\Entity\Locale;
+use DirectokiBundle\Entity\SelectValueHasTitle;
 use JMBTechnology\UserAccountsBundle\Entity\User;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
 use DirectokiBundle\FieldType\FieldTypeURL;
@@ -44,6 +47,13 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $event->setUser($user);
         $this->em->persist($event);
 
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
         $directory = new Directory();
         $directory->setPublicId('resource');
         $directory->setTitleSingular('Resource');
@@ -63,8 +73,14 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $selectValue = new SelectValue();
         $selectValue->setField($field);
         $selectValue->setCreationEvent($event);
-        $selectValue->setTitle('PHP');
         $this->em->persist($selectValue);
+
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('PHP');
+        $this->em->persist($selectValueHasTitle);
 
         $record = new Record();
         $record->setDirectory($directory);
@@ -72,6 +88,9 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $this->em->persist($record);
 
         $this->em->flush();
+
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
 
         # TEST
 
@@ -82,7 +101,7 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         # CALL API
         $client = $this->container->get('test.client');
 
-        $client->request('POST', '/api1/project/test1/directory/resource/record/' . $record->getPublicId() . '/edit.json', array(
+        $client->request('POST', '/api1/project/test1/directory/resource/record/' . $record->getPublicId() . '/edit.json?locale=en_GB', array(
             'field_tech_add_title' => 'php ', // passing different case and extra space on purpose
             'comment' => 'I make good change!',
             'email' => 'user1@example.com',
@@ -101,7 +120,7 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $this->assertEquals(1, count($values));
 
         $value = $values[0];
-        $this->assertEquals("PHP", $value->getSelectValue()->getTitle());
+        $this->assertEquals("PHP", $value->getSelectValue()->getCachedTitleForLocale($locale));
     }
 
 
@@ -125,6 +144,13 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $event->setUser($user);
         $this->em->persist($event);
 
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
         $directory = new Directory();
         $directory->setPublicId('resource');
         $directory->setTitleSingular('Resource');
@@ -144,8 +170,14 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $selectValue = new SelectValue();
         $selectValue->setField($field);
         $selectValue->setCreationEvent($event);
-        $selectValue->setTitle('PHP');
         $this->em->persist($selectValue);
+
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('PHP');
+        $this->em->persist($selectValueHasTitle);
 
         $record = new Record();
         $record->setDirectory($directory);
@@ -153,6 +185,9 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $this->em->persist($record);
 
         $this->em->flush();
+
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
 
         # TEST
 
@@ -163,7 +198,7 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         # CALL API
         $client = $this->container->get('test.client');
 
-        $client->request('POST', '/api1/project/test1/directory/resource/record/' . $record->getPublicId() . '/edit.json', array(
+        $client->request('POST', '/api1/project/test1/directory/resource/record/' . $record->getPublicId() . '/edit.json?locale=en_GB', array(
             'field_tech_add_id' => $selectValue->getPublicId(),
             'comment' => 'I make good change!',
             'email' => 'user1@example.com',
@@ -182,7 +217,7 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $this->assertEquals(1, count($values));
 
         $value = $values[0];
-        $this->assertEquals("PHP", $value->getSelectValue()->getTitle());
+        $this->assertEquals("PHP", $value->getSelectValue()->getCachedTitleForLocale($locale));
     }
 
 
@@ -208,6 +243,13 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $event->setUser($user);
         $this->em->persist($event);
 
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
         $directory = new Directory();
         $directory->setPublicId('resource');
         $directory->setTitleSingular('Resource');
@@ -227,8 +269,14 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $selectValue = new SelectValue();
         $selectValue->setField($field);
         $selectValue->setCreationEvent($event);
-        $selectValue->setTitle('PHP');
         $this->em->persist($selectValue);
+
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('PHP');
+        $this->em->persist($selectValueHasTitle);
 
         $record = new Record();
         $record->setDirectory($directory);
@@ -246,19 +294,22 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
 
         $this->em->flush();
 
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
+
         # TEST
 
         $values = $this->em->getRepository('DirectokiBundle:RecordHasFieldMultiSelectValue')->findAll();
         $this->assertEquals(1, count($values));
 
         $value = $values[0];
-        $this->assertEquals("PHP", $value->getSelectValue()->getTitle());
+        $this->assertEquals("PHP", $value->getSelectValue()->getCachedTitleForLocale($locale));
         $this->assertNull($value->getRemovalCreatedAt());
 
         # CALL API
         $client = $this->container->get('test.client');
 
-        $client->request('POST', '/api1/project/test1/directory/resource/record/' . $record->getPublicId() . '/edit.json', array(
+        $client->request('POST', '/api1/project/test1/directory/resource/record/' . $record->getPublicId() . '/edit.json?locale=en_GB', array(
             'field_tech_remove_id' => $selectValue->getPublicId(),
             'comment' => 'I make good change!',
             'email' => 'user1@example.com',
@@ -276,7 +327,7 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $this->assertEquals(1, count($values));
 
         $value = $values[0];
-        $this->assertEquals("PHP", $value->getSelectValue()->getTitle());
+        $this->assertEquals("PHP", $value->getSelectValue()->getCachedTitleForLocale($locale));
         $this->assertNotNull($value->getRemovalCreatedAt());
 
     }
@@ -301,6 +352,13 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $event->setUser($user);
         $this->em->persist($event);
 
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
         $directory = new Directory();
         $directory->setPublicId('resource');
         $directory->setTitleSingular('Resource');
@@ -320,14 +378,26 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $selectValue1 = new SelectValue();
         $selectValue1->setField($field);
         $selectValue1->setCreationEvent($event);
-        $selectValue1->setTitle('PHP');
         $this->em->persist($selectValue1);
+
+        $selectValue1HasTitle = new SelectValueHasTitle();
+        $selectValue1HasTitle->setSelectValue($selectValue1);
+        $selectValue1HasTitle->setLocale($locale);
+        $selectValue1HasTitle->setCreationEvent($event);
+        $selectValue1HasTitle->setTitle('PHP');
+        $this->em->persist($selectValue1HasTitle);
 
         $selectValue2 = new SelectValue();
         $selectValue2->setField($field);
         $selectValue2->setCreationEvent($event);
-        $selectValue2->setTitle('Symfony');
         $this->em->persist($selectValue2);
+
+        $selectValue2HasTitle = new SelectValueHasTitle();
+        $selectValue2HasTitle->setSelectValue($selectValue2);
+        $selectValue2HasTitle->setLocale($locale);
+        $selectValue2HasTitle->setCreationEvent($event);
+        $selectValue2HasTitle->setTitle('Symfony');
+        $this->em->persist($selectValue2HasTitle);
 
         $record = new Record();
         $record->setDirectory($directory);
@@ -335,6 +405,9 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         $this->em->persist($record);
 
         $this->em->flush();
+
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
 
         # TEST
 
@@ -345,7 +418,7 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
         # CALL API
         $client = $this->container->get('test.client');
 
-        $client->request('POST', '/api1/project/test1/directory/resource/record/' . $record->getPublicId() . '/edit.json', array(
+        $client->request('POST', '/api1/project/test1/directory/resource/record/' . $record->getPublicId() . '/edit.json?locale=en_GB', array(
             'field_tech_add_id' => $selectValue1->getPublicId().','.$selectValue2->getPublicId(),
             'comment' => 'I make good change!',
             'email' => 'user1@example.com',
@@ -365,8 +438,8 @@ class API1ProjectDirectoryRecordEditControllerFieldMultiSelectWithDataBaseTest e
 
         # TODO the order these come out might be arbitary and to make the test more robust I do something about checking that.
 
-        $this->assertEquals("PHP", $values[0]->getSelectValue()->getTitle());
-        $this->assertEquals("Symfony", $values[1]->getSelectValue()->getTitle());
+        $this->assertEquals("PHP", $values[0]->getSelectValue()->getCachedTitleForLocale($locale));
+        $this->assertEquals("Symfony", $values[1]->getSelectValue()->getCachedTitleForLocale($locale));
     }
 
 

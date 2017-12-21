@@ -4,6 +4,7 @@
 namespace DirectokiBundle\Tests\InternalAPI\V1;
 
 
+use DirectokiBundle\Cron\UpdateFieldCache;
 use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Field;
@@ -18,6 +19,7 @@ use DirectokiBundle\Entity\RecordHasFieldStringWithLocaleValue;
 use DirectokiBundle\Entity\RecordHasFieldTextValue;
 use DirectokiBundle\Entity\RecordHasState;
 use DirectokiBundle\Entity\SelectValue;
+use DirectokiBundle\Entity\SelectValueHasTitle;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
@@ -37,7 +39,9 @@ class GetPublishedRecordFieldTypeMultiSelectWithDataBaseTest extends BaseTestWit
 {
 
 
-
+    /**
+     *
+     */
     public function testMultiSelectField() {
 
         $user = new User();
@@ -56,6 +60,14 @@ class GetPublishedRecordFieldTypeMultiSelectWithDataBaseTest extends BaseTestWit
         $event->setProject($project);
         $event->setUser($user);
         $this->em->persist($event);
+
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
 
         $directory = new Directory();
         $directory->setPublicId('resource');
@@ -89,10 +101,16 @@ class GetPublishedRecordFieldTypeMultiSelectWithDataBaseTest extends BaseTestWit
 
         $selectValue = new SelectValue();
         $selectValue->setField($field);
-        $selectValue->setTitle('Cats');
         $selectValue->setPublicId('cats');
         $selectValue->setCreationEvent($event);
         $this->em->persist($selectValue);
+
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('Cats');
+        $this->em->persist($selectValueHasTitle);
 
         $recordHasFieldMultiSelectValue = new RecordHasFieldMultiSelectValue();
         $recordHasFieldMultiSelectValue->setRecord($record);
@@ -104,10 +122,13 @@ class GetPublishedRecordFieldTypeMultiSelectWithDataBaseTest extends BaseTestWit
 
         $this->em->flush();
 
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
+
         # TEST
 
         $internalAPI = new InternalAPI($this->container);
-        $record = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getRecordAPI('r1')->getPublished();
+        $record = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getRecordAPI('r1')->getPublished();
 
         $this->assertEquals('r1', $record->getPublicId());
         $this->assertEquals('DirectokiBundle\InternalAPI\V1\Model\FieldValueMultiSelect', get_class($record->getFieldValue('topics')));

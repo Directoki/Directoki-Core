@@ -82,10 +82,10 @@ class FieldTypeLatLng extends  BaseFieldType {
     }
 
 
-    public function getEditFieldFormClass( Field $field, Record $record ) {
+    public function getEditFieldFormClass( Field $field, Record $record, Locale $locale ) {
         return RecordHasFieldLatLngValueType::class;
     }
-    public function getEditFieldFormOptions( Field $field, Record $record ) {
+    public function getEditFieldFormOptions( Field $field, Record $record , Locale $locale) {
 
         $dataHasField = $this->getLatestFieldValue($field, $record);
 
@@ -123,7 +123,7 @@ class FieldTypeLatLng extends  BaseFieldType {
         return array('lat'=>$latest->getLat(), 'lng'=>$latest->getLng());
     }
 
-    public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event) {
+    public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event, BaseLocaleMode $localeMode) {
         if ($parameterBag->has('field_'.$field->getPublicId().'_lat') && $parameterBag->has('field_'.$field->getPublicId().'_lng')) {
             $currentValueLat = null;
             $currentValueLng = null;
@@ -214,7 +214,7 @@ class FieldTypeLatLng extends  BaseFieldType {
         return $val ? array('lat'=>$val->getLat(), 'lng'=>$val->getLng()) : array();
     }
 
-    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
 
         $formBuilderInterface->add('field_'.$field->getPublicId().'_lat', NumberType::class, array(
@@ -230,7 +230,7 @@ class FieldTypeLatLng extends  BaseFieldType {
         ));
     }
 
-    public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $lat = $form->get('field_'.$field->getPublicId().'_lat')->getData();
         $lng = $form->get('field_'.$field->getPublicId().'_lng')->getData();
@@ -279,7 +279,7 @@ class FieldTypeLatLng extends  BaseFieldType {
         return '';
     }
 
-    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $latestValue = $this->getLatestFieldValue($field, $record);
 
@@ -303,7 +303,7 @@ class FieldTypeLatLng extends  BaseFieldType {
         return '@Directoki/FieldType/LatLng/publicEditRecordForm.html.twig';
     }
 
-    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $lat = $form->get('field_'.$field->getPublicId().'_lat')->getData();
         $lng = $form->get('field_'.$field->getPublicId().'_lng')->getData();
@@ -323,7 +323,7 @@ class FieldTypeLatLng extends  BaseFieldType {
         return array();
     }
 
-    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $formBuilderInterface->add('field_'.$field->getPublicId().'_lat', NumberType::class, array(
             'required' => false,
@@ -343,7 +343,7 @@ class FieldTypeLatLng extends  BaseFieldType {
         return '@Directoki/FieldType/LatLng/publicNewRecordForm.html.twig';
     }
 
-    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $lat = $form->get('field_'.$field->getPublicId().'_lat')->getData();
         $lng = $form->get('field_'.$field->getPublicId().'_lng')->getData();

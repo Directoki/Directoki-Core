@@ -4,6 +4,9 @@ namespace DirectokiBundle\InternalAPI\V1;
 
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\InternalAPI\V1\Model\Locale;
+use DirectokiBundle\LocaleMode\BaseLocaleMode;
+use DirectokiBundle\LocaleMode\NoLocaleMode;
+use DirectokiBundle\LocaleMode\SingleLocaleMode;
 
 
 /**
@@ -18,10 +21,14 @@ class InternalAPIProject
     /** @var  Project */
     protected $project;
 
+    /** @var  BaseLocaleMode */
+    protected $localeMode;
+
     function __construct($container, Project $project)
     {
         $this->container = $container;
         $this->project = $project;
+        $this->localeMode = new NoLocaleMode();
     }
 
     /**
@@ -37,7 +44,7 @@ class InternalAPIProject
             throw new \Exception("Not Found Directory");
         }
 
-        return new InternalAPIDirectory($this->container, $this->project, $directory);
+        return new InternalAPIDirectory($this->container, $this->project, $directory, $this->localeMode);
     }
 
     function getLocaleByPublicId(string $publicId) {
@@ -51,5 +58,17 @@ class InternalAPIProject
         return new Locale($locale->getPublicId(), $locale->getTitle());
     }
 
+    function setSingleLocaleModeByPublicId(string $publicId) {
+        $doctrine = $this->container->get('doctrine')->getManager();
+
+        $locale = $doctrine->getRepository('DirectokiBundle:Locale')->findOneBy(array('project'=>$this->project, 'publicId'=>$publicId));
+        if (!$locale) {
+            throw new \Exception("Not Found Locale");
+        }
+
+        $this->localeMode = new SingleLocaleMode($locale);
+
+        return $this;
+    }
 
 }

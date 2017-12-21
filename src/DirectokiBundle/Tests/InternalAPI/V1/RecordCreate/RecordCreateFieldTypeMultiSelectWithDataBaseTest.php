@@ -4,12 +4,14 @@
 namespace DirectokiBundle\Tests\InternalAPI\V1\RecordCreate;
 
 
+use DirectokiBundle\Cron\UpdateFieldCache;
 use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Field;
 use DirectokiBundle\Entity\Locale;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\SelectValue;
+use DirectokiBundle\Entity\SelectValueHasTitle;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
@@ -48,6 +50,13 @@ class RecordCreateFieldTypeMultiSelectWithDataBaseTest extends BaseTestWithDataB
         $event->setUser($user);
         $this->em->persist($event);
 
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
         $directory = new Directory();
         $directory->setPublicId('resource');
         $directory->setTitleSingular('Resource');
@@ -68,16 +77,24 @@ class RecordCreateFieldTypeMultiSelectWithDataBaseTest extends BaseTestWithDataB
         $selectValue = new SelectValue();
         $selectValue->setField($field);
         $selectValue->setCreationEvent($event);
-        $selectValue->setTitle('PHP');
         $this->em->persist($selectValue);
+
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('PHP');
+        $this->em->persist($selectValueHasTitle);
 
         $this->em->flush();
 
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
 
         # CREATE
         $internalAPI = new InternalAPI($this->container);
 
-        $internalAPIDirectory = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource');
+        $internalAPIDirectory = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource');
 
         $selectValuesFromAPI = $internalAPIDirectory->getFieldAPI('tags')->getPublishedSelectValues();
         $this->assertEquals(1, count($selectValuesFromAPI));
@@ -111,7 +128,7 @@ class RecordCreateFieldTypeMultiSelectWithDataBaseTest extends BaseTestWithDataB
         $fieldModerationNeeded = $fieldModerationsNeeded[0];
 
         $this->assertEquals('DirectokiBundle\ModerationNeeded\ModerationNeededRecordHasFieldMultiValueAddition', get_class($fieldModerationNeeded));
-        $this->assertEquals('PHP', $fieldModerationNeeded->getFieldValue()->getSelectValue()->getTitle());
+        $this->assertEquals('PHP', $fieldModerationNeeded->getFieldValue()->getSelectValue()->getCachedTitleForLocale($locale));
 
 
     }

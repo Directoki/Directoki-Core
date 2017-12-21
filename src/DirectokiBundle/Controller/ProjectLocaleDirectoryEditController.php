@@ -45,6 +45,7 @@ class ProjectLocaleDirectoryEditController extends ProjectLocaleDirectoryControl
                 'user'=>$this->getUser(),
                 'container'=>$this->container,
                 'fields' => $fields,
+                'locale' => $this->locale,
             )
         );
         if ($request->getMethod() == 'POST') {
@@ -70,7 +71,7 @@ class ProjectLocaleDirectoryEditController extends ProjectLocaleDirectoryControl
                     $fieldType = $this->container->get( 'directoki_field_type_service' )->getByField( $field );
 
                     try {
-                        $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processPublicNewRecordForm($field, $record, $form, $event, false));
+                        $fieldDataToSave = array_merge($fieldDataToSave, $fieldType->processPublicNewRecordForm($field, $record, $form, $event, $this->locale, false));
                     } catch (DataValidationException $e) {
                         $anyDataValidationErrors = true;
                     }

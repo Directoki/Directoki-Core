@@ -3,6 +3,7 @@
 namespace DirectokiBundle\Cron;
 
 use DirectokiBundle\Entity\Record;
+use DirectokiBundle\Entity\Field;
 
 
 /**
@@ -20,6 +21,10 @@ abstract class BaseCron
     }
 
     function runForRecord(Record $record) {
+
+    }
+
+    function runForField(Field $field) {
 
     }
 

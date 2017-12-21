@@ -463,7 +463,7 @@ class AdminProjectDirectoryEditController extends AdminProjectDirectoryControlle
         $fields        = $doctrine->getRepository( 'DirectokiBundle:Field' )->findForDirectory( $this->directory );
 
 
-        $form = $this->createForm( RecordNewType::class, null, array('container'=>$this->container, 'fields'=>$fields));
+        $form = $this->createForm( RecordNewType::class, null, array('container'=>$this->container, 'fields'=>$fields,'locale'=>$this->locale));
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
@@ -500,7 +500,7 @@ class AdminProjectDirectoryEditController extends AdminProjectDirectoryControlle
                 foreach ($fields as $field) {
                     $fieldType = $this->container->get('directoki_field_type_service')->getByField($field);
                     try {
-                        foreach ($fieldType->processNewRecordForm($field, $record, $form, $event, $approve) as $entity) {
+                        foreach ($fieldType->processNewRecordForm($field, $record, $form, $event, $this->locale, $approve) as $entity) {
                             $doctrine->persist($entity);
                         }
                     } catch (DataValidationException $dataValidationException) {
@@ -530,6 +530,7 @@ class AdminProjectDirectoryEditController extends AdminProjectDirectoryControlle
 
         return $this->render('DirectokiBundle:AdminProjectDirectoryEdit:newRecord.html.twig', array(
             'project' => $this->project,
+            'locale' => $this->locale,
             'directory' => $this->directory,
             'form' => $form->createView(),
             'fields' => $fields,

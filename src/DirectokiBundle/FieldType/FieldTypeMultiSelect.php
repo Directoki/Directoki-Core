@@ -8,9 +8,11 @@ use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasFieldMultiSelectValue;
 use DirectokiBundle\Entity\Field;
+use DirectokiBundle\Entity\Locale;
 use DirectokiBundle\Entity\SelectValue;
+use DirectokiBundle\Entity\SelectValueHasTitle;
 use DirectokiBundle\LocaleMode\BaseLocaleMode;
-use Locale;
+use DirectokiBundle\LocaleMode\SingleLocaleMode;
 use Symfony\Component\Form\Form;
 use DirectokiBundle\ImportCSVLineResult;
 use DirectokiBundle\InternalAPI\V1\Model\BaseFieldValue;
@@ -36,14 +38,17 @@ class FieldTypeMultiSelect extends  BaseFieldType
     const FIELD_TYPE_API1 = 'multiselect';
 
 
-    public function getSelectValues(Field $field)
+    public function getSelectValues(Field $field, Locale $locale = null)
     {
+        if ($locale) {
+            return $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:SelectValue')->findByFieldSortForLocale($field, $locale);
+        } else {
+            $repo = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:SelectValue');
 
-        $repo = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:SelectValue');
+            $r = $repo->findBy(array('field' => $field), array('createdAt' => 'asc'));
 
-        $r = $repo->findBy(array('field'=>$field),array('title'=>'asc'));
-
-        return $r;
+            return $r;
+        }
 
     }
 
@@ -67,7 +72,8 @@ class FieldTypeMultiSelect extends  BaseFieldType
 
             foreach($record->getCachedFields()[$field->getId()]['value'] as $data) {
                 $selectValue = new SelectValue();
-                $selectValue->setTitle($data['title']);
+                $selectValue->setCachedTitles($data['cachedTitles']);
+                // TODO $selectValue->setTitle($data['title']);
                 $selectValue->setPublicId($data['publicId']);
 
                 $recordHasFieldMultiSelectValue = new RecordHasFieldMultiSelectValue();
@@ -114,15 +120,16 @@ class FieldTypeMultiSelect extends  BaseFieldType
         return true;
     }
 
-    public function getEditFieldFormClass( Field $field, Record $record ) {
+    public function getEditFieldFormClass( Field $field, Record $record , Locale $locale) {
         return RecordHasFieldMultiSelectValueType::class;
     }
-    public function getEditFieldFormOptions( Field $field, Record $record ) {
+    public function getEditFieldFormOptions( Field $field, Record $record , Locale $locale) {
 
         return array(
             'container'=>$this->container,
             'field'=>$field,
             'record'=>$record,
+            'locale'=>$locale,
         );
     }
 
@@ -198,17 +205,17 @@ class FieldTypeMultiSelect extends  BaseFieldType
         return array('values' => $out);
     }
 
-    public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event)
+    public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event, BaseLocaleMode $localeMode)
     {
         $out = array();
         if ($parameterBag->has('field_' . $field->getPublicId() . '_add_title')) {
             $newValue = $parameterBag->get('field_' . $field->getPublicId() . '_add_title');
             if (is_array($newValue)) {
                 foreach ($newValue as $nv) {
-                    $out = array_merge($out, $this->processAPI1RecordAddStringValue($nv, $field, $record, $event));
+                    $out = array_merge($out, $this->processAPI1RecordAddStringValue($nv, $field, $record, $event, false, $localeMode));
                 }
             } else {
-                $out = array_merge($out, $this->processAPI1RecordAddStringValue($newValue, $field, $record, $event));
+                $out = array_merge($out, $this->processAPI1RecordAddStringValue($newValue, $field, $record, $event, false, $localeMode));
             }
         }
         if ($parameterBag->has('field_' . $field->getPublicId() . '_add_id')) {
@@ -264,18 +271,23 @@ class FieldTypeMultiSelect extends  BaseFieldType
         return $out;
     }
 
-    protected function processAPI1RecordAddStringValue($value, Field $field, Record $record = null, Event $event, $approve = false)
+    protected function processAPI1RecordAddStringValue($value, Field $field, Record $record = null, Event $event, $approve = false, BaseLocaleMode $localeMode = null)
     {
 
         $repoSelectValue = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:SelectValue');
 
-        $valueObject = $repoSelectValue->findByTitleFromUser($field, $value);
+        if ($localeMode instanceof SingleLocaleMode) {
+            $valueObject = $repoSelectValue->findByTitleFromUser($field, $value, $localeMode->getLocale());
 
-        if (!$valueObject) {
-            return array(); // TODO We can't find the value the user passed.
+            if (!$valueObject) {
+                return array(); // TODO We can't find the value the user passed.
+            }
+
+            return $this->processAPI1RecordAddSelectValue($valueObject, $field, $record, $event, $approve);
+
+        } else {
+            return array(); // TODO
         }
-
-        return $this->processAPI1RecordAddSelectValue($valueObject, $field, $record, $event, $approve);
 
     }
 
@@ -372,6 +384,13 @@ class FieldTypeMultiSelect extends  BaseFieldType
 
         $entitesToSave = array();
         $repoSelectValue = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:SelectValue');
+        $repoLocale = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:Locale');
+
+        $locale = null;
+        if (isset($fieldConfig['locale'])) {
+            $locale = $repoLocale->findOneBy(array('publicId' => $fieldConfig['locale'], 'project' => $field->getDirectory()->getProject()));
+        }
+        // TODO pass in a localemode object here that is set in global import mode - take from there if not set specifically
 
         if (isset($fieldConfig['add_value_id'])) {
             foreach(explode(",", $fieldConfig['add_value_id']) as $valuePublicId) {
@@ -392,17 +411,24 @@ class FieldTypeMultiSelect extends  BaseFieldType
             }
         }
 
-        if (isset($fieldConfig['add_title_column'])) {
+        if (isset($fieldConfig['add_title_column']) && $locale) {
             foreach (explode(",", $lineData[$fieldConfig['add_title_column']]) as $valueTitle) {
                 $valueTitle = trim($valueTitle);
                 if ($valueTitle) {
-                    $valueObject = $repoSelectValue->findByTitleFromUser($field, $valueTitle);
+                    $valueObject = $repoSelectValue->findByTitleFromUser($field, $valueTitle, $locale);
                     if (!$valueObject) {
                         $valueObject = new SelectValue();
                         $valueObject->setCreationEvent($creationEvent);
-                        $valueObject->setTitle(trim($valueTitle));
                         $valueObject->setField($field);
                         $entitesToSave[] = $valueObject;
+
+                        $valueObjectHasTitle = new SelectValueHasTitle();
+                        $valueObjectHasTitle->setTitle($valueTitle);
+                        $valueObjectHasTitle->setSelectValue($valueObject);
+                        $valueObjectHasTitle->setLocale($locale);
+                        $valueObjectHasTitle->setCreationEvent($creationEvent);
+                        $entitesToSave[] = $valueObjectHasTitle;
+
                     }
                     $newRecordHasFieldValues = new RecordHasFieldMultiSelectValue();
                     $newRecordHasFieldValues->setRecord($record);
@@ -420,10 +446,13 @@ class FieldTypeMultiSelect extends  BaseFieldType
         if ($entitesToSave) {
             $debugOutput = array();
             foreach($entitesToSave as $record) {
-                if ($record instanceof RecordHasFieldMultiSelectValue) {
-                    $debugOutput[] = $record->getSelectValue()->getTitle();
-                } else if ($record instanceof SelectValue) {
+
+                if ($record instanceof SelectValueHasTitle) {
+                    // It's a new select value!
                     $debugOutput[] = "New Select Value: ". $record->getTitle();
+                } else if ($record instanceof RecordHasFieldMultiSelectValue && $record->getSelectValue()->getId()) {
+                    // It's an existing select value!
+                    $debugOutput[] = $record->getSelectValue()->getCachedTitleForLocale($locale);
                 }
             }
             return new ImportCSVLineResult(
@@ -439,26 +468,27 @@ class FieldTypeMultiSelect extends  BaseFieldType
         foreach($this->getLatestFieldValues($field, $record) as $recordHasFieldMultiSelectValue) {
             $out['value'][] = array(
                 'publicId'=>$recordHasFieldMultiSelectValue->getSelectValue()->getPublicId(),
-                'title'=>$recordHasFieldMultiSelectValue->getSelectValue()->getTitle(),
+                'cachedTitles'=>$recordHasFieldMultiSelectValue->getSelectvalue()->getCachedTitles(),
+                // TODO 'title'=>$recordHasFieldMultiSelectValue->getSelectValue()->getTitle(),
             );
         }
         return $out;
     }
 
-    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         foreach ($this->getSelectValues($field) as $selectValue) {
             $formBuilderInterface->add('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId(), CheckboxType::class, array(
                 'required' => false,
-                'label'=> $selectValue->getTitle(),
+                'label'=> $selectValue->getCachedTitleForLocale($locale),
             ));
         }
     }
 
-    public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $entitesToSave = array();
-        foreach ($this->getSelectValues($field) as $selectValue) {
+        foreach ($this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:SelectValue')->findByField($field) as $selectValue) {
             $value = $form->get('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId())->getData();
             if ($value) {
                 $newRecordHasFieldValues = new RecordHasFieldMultiSelectValue();
@@ -507,19 +537,19 @@ class FieldTypeMultiSelect extends  BaseFieldType
     {
         $out = array();
         foreach ($this->getLatestFieldValues($field, $record) as $record) {
-            $out[] = $record->getSelectValue()->getTitle();
+            $out[] = $record->getSelectValue()->getCachedTitleForLocale($locale);
         }
         return implode(' ', $out);
     }
 
-    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $repoRecordHasFieldMultiSelectValue = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:RecordHasFieldMultiSelectValue');
-        foreach ($this->getSelectValues($field) as $selectValue) {
+        foreach ($this->getSelectValues($field, $locale) as $selectValue) {
             $recordFieldHasValue = $repoRecordHasFieldMultiSelectValue->getRecordFieldHasValue($record, $field, $selectValue);
             $formBuilderInterface->add('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId(), CheckboxType::class, array(
                 'required' => false,
-                'label' => $selectValue->getTitle(),
+                'label' => $selectValue->getCachedTitleForLocale($locale),
                 'data' => $recordFieldHasValue ? true : false,
             ));
         }
@@ -530,7 +560,7 @@ class FieldTypeMultiSelect extends  BaseFieldType
         return '@Directoki/FieldType/MultiSelect/publicEditRecordForm.html.twig';
     }
 
-    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $repoRecordHasFieldMultiSelectValue = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:RecordHasFieldMultiSelectValue');
         $entitesToSave = array();
@@ -561,12 +591,12 @@ class FieldTypeMultiSelect extends  BaseFieldType
         return $entitesToSave;
     }
 
-    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
-        foreach ($this->getSelectValues($field) as $selectValue) {
+        foreach ($this->getSelectValues($field, $locale) as $selectValue) {
             $formBuilderInterface->add('field_'.$field->getPublicId().'_value_'. $selectValue->getPublicId(), CheckboxType::class, array(
                 'required' => false,
-                'label'=> $selectValue->getTitle(),
+                'label'=> $selectValue->getCachedTitleForLocale($locale),
             ));
         }
     }
@@ -576,7 +606,7 @@ class FieldTypeMultiSelect extends  BaseFieldType
         return '@Directoki/FieldType/MultiSelect/publicNewRecordForm.html.twig';
     }
 
-    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $entitesToSave = array();
         foreach ($this->getSelectValues($field) as $selectValue) {

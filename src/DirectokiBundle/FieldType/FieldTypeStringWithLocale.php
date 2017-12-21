@@ -142,10 +142,10 @@ class FieldTypeStringWithLocale extends BaseFieldType {
 
     }
 
-    public function getEditFieldFormClass( Field $field, Record $record ) {
+    public function getEditFieldFormClass( Field $field, Record $record , Locale $locale) {
         return RecordHasFieldStringWithLocaleValueType::class;
     }
-    public function getEditFieldFormOptions( Field $field, Record $record ) {
+    public function getEditFieldFormOptions( Field $field, Record $record , Locale $locale) {
 
         $repo = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:Locale');
 
@@ -256,7 +256,7 @@ class FieldTypeStringWithLocale extends BaseFieldType {
         return array();
     }
 
-    public function processAPI1Record(Field $field, Record $record, ParameterBag $parameterBag, Event $event)
+    public function processAPI1Record(Field $field, Record $record, ParameterBag $parameterBag, Event $event, BaseLocaleMode $localeMode)
     {
         $out = array();
 
@@ -343,7 +343,7 @@ class FieldTypeStringWithLocale extends BaseFieldType {
     }
 
 
-    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $repo = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:Locale');
 
@@ -370,6 +370,7 @@ class FieldTypeStringWithLocale extends BaseFieldType {
         Record $record,
         Form $form,
         Event $creationEvent,
+        Locale $locale,
         $published = false
     ) {
 
@@ -427,7 +428,7 @@ class FieldTypeStringWithLocale extends BaseFieldType {
         return $value ? $value->getValue() : '';
     }
 
-    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         // TODO: Implement addToPublicEditRecordForm() method.
     }
@@ -437,13 +438,13 @@ class FieldTypeStringWithLocale extends BaseFieldType {
         return '@Directoki/FieldType/StringWithLocale/publicEditRecordForm.html.twig';
     }
 
-    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         // TODO: Implement processPublicEditRecordForm() method.
         return array();
     }
 
-    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         // TODO: Implement addToPublicNewRecordForm() method.
     }
@@ -453,7 +454,7 @@ class FieldTypeStringWithLocale extends BaseFieldType {
         return '@Directoki/FieldType/StringWithLocale/publicNewRecordForm.html.twig';
     }
 
-    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         // TODO: Implement processPublicNewRecordForm() method.
         return array();

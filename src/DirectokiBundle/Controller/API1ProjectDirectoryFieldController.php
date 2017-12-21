@@ -6,6 +6,7 @@ use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Project;
 use DirectokiBundle\Entity\Field;
 use DirectokiBundle\FieldType\StringFieldType;
+use DirectokiBundle\LocaleMode\SingleLocaleMode;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -129,12 +130,25 @@ class API1ProjectDirectoryFieldController extends Controller
 
         $doctrine = $this->getDoctrine()->getManager();
         $repository = $doctrine->getRepository('DirectokiBundle:SelectValue');
+        if ($this->localeMode instanceof SingleLocaleMode) {
+            $selectValues = $repository->findByFieldSortForLocale($this->field, $this->localeMode->getLocale());
+        } else {
+            $selectValues = $repository->findBy(array('field' => $this->field));
+        }
 
-        foreach($repository->findBy(array('field'=>$this->field)) as $selectValue) {
-            $out['select_values'][] = array(
-                'id' => $selectValue->getPublicId(),
-                'title' => $selectValue->getTitle(),
-            );
+        foreach($selectValues as $selectValue) {
+            if ($this->localeMode instanceof SingleLocaleMode) {
+                $out['select_values'][] = array(
+                    'id' => $selectValue->getPublicId(),
+                    'title' => $selectValue->getCachedTitleForLocale($this->localeMode->getLocale()),
+                );
+            } else {
+                $out['select_values'][] = array(
+                    'id' => $selectValue->getPublicId(),
+                    // TODO 'title' => $selectValue->getCachedTitleForLocale($this->lo),
+                );
+
+            }
         }
 
         return $out;

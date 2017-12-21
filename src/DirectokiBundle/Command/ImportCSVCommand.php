@@ -3,8 +3,10 @@
 namespace DirectokiBundle\Command;
 
 use DirectokiBundle\Action\UpdateRecordCache;
+use DirectokiBundle\Action\UpdateSelectValueCache;
 use DirectokiBundle\Entity\Record;
 use DirectokiBundle\Entity\RecordHasState;
+use DirectokiBundle\Entity\SelectValue;
 use DirectokiBundle\Exception\DataValidationException;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -104,6 +106,7 @@ class ImportCSVCommand extends ContainerAwareCommand
         $csvEscape = isset($config['csv']) && isset($config['csv']['escape']) ? $config['csv']['escape'] : "\\";
 
         $updateCacheAction = new UpdateRecordCache($this->getContainer());
+        $updateSelectValueCacheAction = new UpdateSelectValueCache($this->getContainer());
         $file = fopen($fileName, 'r');
 
 
@@ -143,6 +146,7 @@ class ImportCSVCommand extends ContainerAwareCommand
                 }
             }
 
+            $selectValues = [];
             foreach($fields as $fieldName=>$fieldData) {
                 try {
                     $return = $fieldData['fieldType']->parseCSVLineData($fieldData['field'], $fieldData['config'], $line, $record, $event, $publish);
@@ -153,6 +157,9 @@ class ImportCSVCommand extends ContainerAwareCommand
                         if ($save) {
                             foreach ($return->getEntitiesToSave() as $entityToSave) {
                                 $doctrine->persist($entityToSave);
+                                if ($entityToSave instanceof SelectValue) {
+                                    $selectValues[] = $entityToSave;
+                                }
                             }
                         }
 
@@ -168,6 +175,9 @@ class ImportCSVCommand extends ContainerAwareCommand
             if ($save) {
                 $doctrine->flush();
                 $output->writeln(' ... ... Saved as: '.$record->getPublicId());
+                foreach($selectValues as $selectValue) {
+                    $updateSelectValueCacheAction->go($selectValue);
+                }
                 $updateCacheAction->go($record);
                 $output->writeln(' ... ... ... and cache updated!');
             }

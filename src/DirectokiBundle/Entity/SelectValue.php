@@ -37,11 +37,9 @@ class SelectValue
     protected $publicId;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="title", type="string", length=250, nullable=false)
+     * @ORM\Column(name="cached_titles", type="json_array", nullable=true)
      */
-    protected $title;
+    protected $cachedTitles;
 
     /**
      * @var \DateTime $createdAt
@@ -132,21 +130,25 @@ class SelectValue
     /**
      * @return string
      */
-    public function getTitle() {
-        return $this->title;
+    public function getCachedTitles()
+    {
+        return $this->cachedTitles;
+    }
+
+
+    public function getCachedTitleForLocale(Locale $locale) {
+        if (is_array($this->cachedTitles) && isset($this->cachedTitles[$locale->getId()])) {
+            return $this->cachedTitles[$locale->getId()];
+        }
     }
 
     /**
-     * @param string $title
+     * @param string $cachedTitles
      */
-    public function setTitle( string $title ) {
-        $this->title = $title;
+    public function setCachedTitles($cachedTitles)
+    {
+        $this->cachedTitles = $cachedTitles;
     }
-
-
-
-
-
 
     /**
      * @ORM\PrePersist()

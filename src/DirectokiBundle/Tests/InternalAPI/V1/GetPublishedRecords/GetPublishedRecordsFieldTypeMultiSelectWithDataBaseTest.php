@@ -5,6 +5,7 @@ namespace DirectokiBundle\Tests\InternalAPI\V1;
 
 
 use DirectokiBundle\Action\UpdateRecordCache;
+use DirectokiBundle\Cron\UpdateFieldCache;
 use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Field;
@@ -18,6 +19,7 @@ use DirectokiBundle\Entity\RecordHasFieldStringWithLocaleValue;
 use DirectokiBundle\Entity\RecordHasFieldTextValue;
 use DirectokiBundle\Entity\RecordHasState;
 use DirectokiBundle\Entity\SelectValue;
+use DirectokiBundle\Entity\SelectValueHasTitle;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
 use DirectokiBundle\FieldType\FieldTypeString;
@@ -55,6 +57,13 @@ class GetPublishedRecordsFieldTypeMultiSelectWithDataBaseTest extends BaseTestWi
         $event->setUser($user);
         $this->em->persist($event);
 
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
         $directory = new Directory();
         $directory->setPublicId('resource');
         $directory->setTitleSingular('Resource');
@@ -87,10 +96,16 @@ class GetPublishedRecordsFieldTypeMultiSelectWithDataBaseTest extends BaseTestWi
 
         $selectValue = new SelectValue();
         $selectValue->setField($field);
-        $selectValue->setTitle('Cats');
         $selectValue->setPublicId('cats');
         $selectValue->setCreationEvent($event);
         $this->em->persist($selectValue);
+
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('Cats');
+        $this->em->persist($selectValueHasTitle);
 
         $recordHasFieldMultiSelectValue = new RecordHasFieldMultiSelectValue();
         $recordHasFieldMultiSelectValue->setRecord($record);
@@ -105,19 +120,22 @@ class GetPublishedRecordsFieldTypeMultiSelectWithDataBaseTest extends BaseTestWi
         # TEST, NO CACHE
 
         $internalAPI = new InternalAPI($this->container);
-        $records = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getPublishedRecords();
+        $records = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getPublishedRecords();
 
         $this->assertEquals(1, count($records));
         $this->assertEquals('r1', $records[0]->getPublicId());
         $this->assertEquals(0, count($records[0]->getFieldValue('topics')->getSelectValues()));
 
         # CACHE
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
+
         $updateRecordCache = new UpdateRecordCache($this->container);
         $updateRecordCache->go($record);
 
         # TEST, CACHE
         $internalAPI = new InternalAPI($this->container);
-        $records = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getPublishedRecords();
+        $records = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getPublishedRecords();
 
         $this->assertEquals(1, count($records));
         $this->assertEquals('r1', $records[0]->getPublicId());

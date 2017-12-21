@@ -52,8 +52,8 @@ abstract class  BaseFieldType {
 
     public abstract function getModerationsNeeded(Field $field, Record $record);
 
-    public abstract function getEditFieldFormClass(Field $field, Record $record);
-    public abstract function getEditFieldFormOptions(Field $field, Record $record);
+    public abstract function getEditFieldFormClass(Field $field, Record $record, Locale $locale);
+    public abstract function getEditFieldFormOptions(Field $field, Record $record, Locale $locale);
 
     public abstract function getEditFieldFormNewRecords(Field $field, Record $record, Event $event, $form, User $user = null, $approve=false);
 
@@ -61,7 +61,7 @@ abstract class  BaseFieldType {
 
     public abstract function getAPIJSON(Field $field, Record $record, BaseLocaleMode $localeMode, $useCachedData = false);
 
-    public abstract function processAPI1Record(Field $field, Record $record, ParameterBag $parameterBag, Event $event);
+    public abstract function processAPI1Record(Field $field, Record $record, ParameterBag $parameterBag, Event $event, BaseLocaleMode $localeMode);
 
     public abstract function processInternalAPI1Record(BaseFieldValue $fieldValueEdit, Directory $directory, Record $record = null, Field $field, Event $event, $approve=false);
 
@@ -72,23 +72,23 @@ abstract class  BaseFieldType {
 
     public abstract function getDataForCache(Field $field, Record $record);
 
-    public abstract function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface);
+    public abstract function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale);
 
     public abstract function getViewTemplateNewRecordForm();
 
-    public abstract function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published=false );
+    public abstract function processNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published=false );
 
-    public abstract function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface);
+    public abstract function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale);
 
     public abstract function getViewTemplatePublicEditRecordForm();
 
-    public abstract function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published=false );
+    public abstract function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published=false );
 
-    public abstract function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface);
+    public abstract function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale);
 
     public abstract function getViewTemplatePublicNewRecordForm();
 
-    public abstract function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published=false );
+    public abstract function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published=false );
 
     public abstract function getExportCSVHeaders(Field $field);
 

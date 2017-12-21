@@ -4,6 +4,7 @@
 namespace DirectokiBundle\Tests\InternalAPI\V1\PublishedRecordEditExisting;
 
 
+use DirectokiBundle\Cron\UpdateFieldCache;
 use DirectokiBundle\Entity\Directory;
 use DirectokiBundle\Entity\Event;
 use DirectokiBundle\Entity\Field;
@@ -18,6 +19,7 @@ use DirectokiBundle\Entity\RecordHasFieldStringWithLocaleValue;
 use DirectokiBundle\Entity\RecordHasFieldTextValue;
 use DirectokiBundle\Entity\RecordHasState;
 use DirectokiBundle\Entity\SelectValue;
+use DirectokiBundle\Entity\SelectValueHasTitle;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
@@ -57,6 +59,13 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $event->setUser($user);
         $this->em->persist($event);
 
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
         $directory = new Directory();
         $directory->setPublicId('resource');
         $directory->setTitleSingular('Resource');
@@ -90,15 +99,24 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $selectValue = new SelectValue();
         $selectValue->setField($field);
         $selectValue->setCreationEvent($event);
-        $selectValue->setTitle('PHP');
         $this->em->persist($selectValue);
+        
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('PHP');
+        $this->em->persist($selectValueHasTitle);
 
         $this->em->flush();
+
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
 
         # TEST
 
         $internalAPI = new InternalAPI($this->container);
-        $internalAPIRecord = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getRecordAPI('r1');
+        $internalAPIRecord = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getRecordAPI('r1');
         $recordEditIntAPI = $internalAPIRecord->getPublishedEdit();
 
         $this->assertEquals('r1', $recordEditIntAPI->getPublicId());
@@ -112,7 +130,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         # Edit
 
 
-        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
+        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
         $this->assertEquals(1, count($selectValuesFromAPI));
         $this->assertEquals('PHP', $selectValuesFromAPI[0]->getTitle());
 
@@ -142,7 +160,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $fieldModerationNeeded = $fieldModerationsNeeded[0];
 
         $this->assertEquals('DirectokiBundle\ModerationNeeded\ModerationNeededRecordHasFieldMultiValueAddition', get_class($fieldModerationNeeded));
-        $this->assertEquals('PHP', $fieldModerationNeeded->getFieldValue()->getSelectValue()->getTitle());
+        $this->assertEquals('PHP', $fieldModerationNeeded->getFieldValue()->getSelectValue()->getCachedTitleForLocale($locale));
 
     }
 
@@ -165,6 +183,13 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $event->setProject($project);
         $event->setUser($user);
         $this->em->persist($event);
+
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
 
         $directory = new Directory();
         $directory->setPublicId('resource');
@@ -199,8 +224,14 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $selectValue = new SelectValue();
         $selectValue->setField($field);
         $selectValue->setCreationEvent($event);
-        $selectValue->setTitle('PHP');
         $this->em->persist($selectValue);
+
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('PHP');
+        $this->em->persist($selectValueHasTitle);
 
         $recordHasFieldMultiSelectValue = new RecordHasFieldMultiSelectValue();
         $recordHasFieldMultiSelectValue->setField($field);
@@ -213,10 +244,13 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
 
         $this->em->flush();
 
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
+
         # TEST
 
         $internalAPI = new InternalAPI($this->container);
-        $internalAPIRecord = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getRecordAPI('r1');
+        $internalAPIRecord = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getRecordAPI('r1');
         $recordEditIntAPI = $internalAPIRecord->getPublishedEdit();
 
         $this->assertEquals('r1', $recordEditIntAPI->getPublicId());
@@ -232,7 +266,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         # Edit
 
 
-        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
+        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
         $this->assertEquals(1, count($selectValuesFromAPI));
         $this->assertEquals('PHP', $selectValuesFromAPI[0]->getTitle());
 
@@ -262,7 +296,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $fieldModerationNeeded = $fieldModerationsNeeded[0];
 
         $this->assertEquals('DirectokiBundle\ModerationNeeded\ModerationNeededRecordHasFieldMultiValueRemoval', get_class($fieldModerationNeeded));
-        $this->assertEquals('PHP', $fieldModerationNeeded->getFieldValue()->getSelectValue()->getTitle());
+        $this->assertEquals('PHP', $fieldModerationNeeded->getFieldValue()->getSelectValue()->getCachedTitleForLocale($locale));
 
     }
 
@@ -288,6 +322,13 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $event->setProject($project);
         $event->setUser($user);
         $this->em->persist($event);
+
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
 
         $directory = new Directory();
         $directory->setPublicId('resource');
@@ -322,8 +363,14 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $selectValue = new SelectValue();
         $selectValue->setField($field);
         $selectValue->setCreationEvent($event);
-        $selectValue->setTitle('PHP');
         $this->em->persist($selectValue);
+
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('PHP');
+        $this->em->persist($selectValueHasTitle);
 
 
         $recordHasFieldMultiSelectValue = new RecordHasFieldMultiSelectValue();
@@ -336,10 +383,13 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
 
         $this->em->flush();
 
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
+
         # TEST
 
         $internalAPI = new InternalAPI($this->container);
-        $internalAPIRecord = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getRecordAPI('r1');
+        $internalAPIRecord = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getRecordAPI('r1');
         $recordEditIntAPI = $internalAPIRecord->getPublishedEdit();
 
         $this->assertEquals('r1', $recordEditIntAPI->getPublicId());
@@ -353,7 +403,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         # Edit
 
 
-        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
+        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
         $this->assertEquals(1, count($selectValuesFromAPI));
         $this->assertEquals('PHP', $selectValuesFromAPI[0]->getTitle());
 
@@ -394,6 +444,13 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $event->setUser($user);
         $this->em->persist($event);
 
+        $locale = new Locale();
+        $locale->setProject($project);
+        $locale->setTitle('en_GB');
+        $locale->setPublicId('en_GB');
+        $locale->setCreationEvent($event);
+        $this->em->persist($locale);
+
         $directory = new Directory();
         $directory->setPublicId('resource');
         $directory->setTitleSingular('Resource');
@@ -427,15 +484,24 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $selectValue = new SelectValue();
         $selectValue->setField($field);
         $selectValue->setCreationEvent($event);
-        $selectValue->setTitle('PHP');
         $this->em->persist($selectValue);
 
+        $selectValueHasTitle = new SelectValueHasTitle();
+        $selectValueHasTitle->setSelectValue($selectValue);
+        $selectValueHasTitle->setLocale($locale);
+        $selectValueHasTitle->setCreationEvent($event);
+        $selectValueHasTitle->setTitle('PHP');
+        $this->em->persist($selectValueHasTitle);
+
         $this->em->flush();
+
+        $action = new UpdateFieldCache($this->container);
+        $action->runForField($field);
 
         # TEST
 
         $internalAPI = new InternalAPI($this->container);
-        $internalAPIRecord = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getRecordAPI('r1');
+        $internalAPIRecord = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getRecordAPI('r1');
         $recordEditIntAPI = $internalAPIRecord->getPublishedEdit();
 
         $this->assertEquals('r1', $recordEditIntAPI->getPublicId());
@@ -449,7 +515,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         # Edit ONCE
 
 
-        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
+        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
         $this->assertEquals(1, count($selectValuesFromAPI));
         $this->assertEquals('PHP', $selectValuesFromAPI[0]->getTitle());
 
@@ -467,7 +533,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         # Edit TWICE
 
 
-        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
+        $selectValuesFromAPI = $internalAPI->getProjectAPI('test1')->setSingleLocaleModeByPublicId('en_GB')->getDirectoryAPI('resource')->getFieldAPI('tags')->getPublishedSelectValues();
         $this->assertEquals(1, count($selectValuesFromAPI));
         $this->assertEquals('PHP', $selectValuesFromAPI[0]->getTitle());
 
@@ -498,7 +564,7 @@ class PublishedRecordEditExistingFieldTypeMultiSelectWithDataBaseTest extends Ba
         $fieldModerationNeeded = $fieldModerationsNeeded[0];
 
         $this->assertEquals('DirectokiBundle\ModerationNeeded\ModerationNeededRecordHasFieldMultiValueAddition', get_class($fieldModerationNeeded));
-        $this->assertEquals('PHP', $fieldModerationNeeded->getFieldValue()->getSelectValue()->getTitle());
+        $this->assertEquals('PHP', $fieldModerationNeeded->getFieldValue()->getSelectValue()->getCachedTitleForLocale($locale));
 
 
     }

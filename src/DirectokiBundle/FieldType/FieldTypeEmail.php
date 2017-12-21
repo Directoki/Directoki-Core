@@ -74,10 +74,10 @@ class FieldTypeEmail extends  BaseFieldType {
         return false;
     }
 
-    public function getEditFieldFormClass( Field $field, Record $record ) {
+    public function getEditFieldFormClass( Field $field, Record $record, Locale $locale ) {
         return RecordHasFieldEmailValueType::class;
     }
-    public function getEditFieldFormOptions( Field $field, Record $record ) {
+    public function getEditFieldFormOptions( Field $field, Record $record , Locale $locale) {
 
         $dataHasField = $this->getLatestFieldValue($field, $record);
 
@@ -104,7 +104,7 @@ class FieldTypeEmail extends  BaseFieldType {
 
 
 
-    public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event) {
+    public function processAPI1Record(Field $field, Record $record = null, ParameterBag $parameterBag, Event $event, BaseLocaleMode $localeMode) {
         if ($parameterBag->has('field_'.$field->getPublicId().'_value')) {
             $data = $parameterBag->get('field_' . $field->getPublicId() . '_value');
             if ($record) {
@@ -147,7 +147,7 @@ class FieldTypeEmail extends  BaseFieldType {
         return $val ? array('value'=>$val->getValue()) : array();
     }
 
-    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $formBuilderInterface->add('field_'.$field->getPublicId(), EmailType::class, array(
             'required' => false,
@@ -155,7 +155,7 @@ class FieldTypeEmail extends  BaseFieldType {
         ));
     }
 
-    public function processNewRecordForm(Field $field, Record $record,Form $form, Event $creationEvent, $published = false)
+    public function processNewRecordForm(Field $field, Record $record,Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $creationEvent, $published, $form->get('field_'.$field->getPublicId()));
@@ -189,7 +189,7 @@ class FieldTypeEmail extends  BaseFieldType {
         return $value ? $value->getValue() : '';
     }
 
-    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicEditRecordForm(Record $record, Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $formBuilderInterface->add('field_'.$field->getPublicId(), EmailType::class, array(
             'required' => false,
@@ -203,14 +203,14 @@ class FieldTypeEmail extends  BaseFieldType {
         return '@Directoki/FieldType/Email/publicEditRecordForm.html.twig';
     }
 
-    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicEditRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         $value = $this->checkAndProcessValueForExistingRecord($data, $field, $record, $creationEvent, $published, $form->get('field_'.$field->getPublicId()));
         return $value ? [ $value ] : [];
     }
 
-    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface)
+    public function addToPublicNewRecordForm(Field $field, FormBuilderInterface $formBuilderInterface, Locale $locale)
     {
         $formBuilderInterface->add('field_'.$field->getPublicId(), EmailType::class, array(
             'required' => false,
@@ -223,7 +223,7 @@ class FieldTypeEmail extends  BaseFieldType {
         return '@Directoki/FieldType/Email/publicNewRecordForm.html.twig';
     }
 
-    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, $published = false)
+    public function processPublicNewRecordForm(Field $field, Record $record, Form $form, Event $creationEvent, Locale $locale, $published = false)
     {
         $data = $form->get('field_'.$field->getPublicId())->getData();
         $value = $this->checkAndProcessValueForNewRecord($data, $field, $record, $creationEvent, $published, $form->get('field_'.$field->getPublicId()));

@@ -4,6 +4,7 @@ namespace DirectokiBundle\Controller;
 
 
 use DirectokiBundle\Entity\SelectValue;
+use DirectokiBundle\Entity\SelectValueHasTitle;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
 use DirectokiBundle\Form\Type\SelectValueNewType;
 use DirectokiBundle\Security\ProjectVoter;
@@ -40,11 +41,12 @@ class AdminProjectDirectoryFieldEditController extends AdminProjectDirectoryFiel
 
         $doctrine = $this->getDoctrine()->getManager();
 
+        $locales = $doctrine->getRepository('DirectokiBundle:Locale')->findByProject($this->project, array('title'=>'ASC'));
 
         $selectValue = new SelectValue();
         $selectValue->setField($this->field);
 
-        $form = $this->createForm( SelectValueNewType::class, $selectValue);
+        $form = $this->createForm( SelectValueNewType::class, $selectValue, ['locales'=>$locales]);
         if ($request->getMethod() == 'POST') {
             $form->handleRequest($request);
             if ($form->isValid()) {
@@ -59,6 +61,18 @@ class AdminProjectDirectoryFieldEditController extends AdminProjectDirectoryFiel
 
                 $selectValue->setCreationEvent($event);
                 $doctrine->persist($selectValue);
+
+                foreach($locales as $locale) {
+                    $title = trim($form->get('title_'.$locale->getId())->getData());
+                    if ($title) {
+                        $selectValueHasTitle = new SelectValueHasTitle();
+                        $selectValueHasTitle->setSelectValue($selectValue);
+                        $selectValueHasTitle->setLocale($locale);
+                        $selectValueHasTitle->setTitle($title);
+                        $selectValueHasTitle->setCreationEvent($event);
+                        $doctrine->persist($selectValueHasTitle);
+                    }
+                }
 
                 $doctrine->flush();
 
