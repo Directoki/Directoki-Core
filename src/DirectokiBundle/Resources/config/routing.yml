@@ -97,126 +97,126 @@ directoki_admin_project_history_show:
     path:     /admin/project/{projectId}/history/{historyId}
     defaults: { _controller: DirectokiBundle:AdminProjectHistory:index }
 
-directoki_admin_project_locale_list:
-    path:     /admin/project/{projectId}/locale
-    defaults: { _controller: DirectokiBundle:AdminProject:locale }
-
 directoki_admin_project_locale_new:
     path:     /admin/project/{projectId}/newLocale
     defaults: { _controller: DirectokiBundle:AdminProjectEdit:newLocale }
 
-directoki_admin_project_directory_new:
-    path:     /admin/project/{projectId}/newDirectory
-    defaults: { _controller: DirectokiBundle:AdminProjectEdit:newDirectory }
+directoki_admin_project_locale_show:
+    path:     /admin/project/{projectId}/locale/{localeId}
+    defaults: { _controller: DirectokiBundle:AdminProjectLocale:index }
 
-directoki_admin_project_directory_show:
-    path:     /admin/project/{projectId}/directory/{directoryId}
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectory:index }
+directoki_admin_project_locale_directory_new:
+    path:     /admin/project/{projectId}/locale/{localeId}/newDirectory
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleEdit:newDirectory }
 
-directoki_admin_project_directory_new_string_field:
-    path:     /admin/project/{projectId}/directory/{directoryId}/newField/string
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryEdit:newStringField }
+directoki_admin_project_locale_directory_show:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectory:index }
 
-directoki_admin_project_directory_stats:
-    path:     /admin/project/{projectId}/directory/{directoryId}/stats
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectory:stats }
+directoki_admin_project_locale_directory_stats:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/stats
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectory:stats }
 
-directoki_admin_project_directory_new_string_with_locale_field:
-    path:     /admin/project/{projectId}/directory/{directoryId}/newField/stringWithLocale
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryEdit:newStringWithLocaleField }
+directoki_admin_project_locale_directory_new_string_field:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/string
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newStringField }
 
-directoki_admin_project_directory_new_text_field:
-    path:     /admin/project/{projectId}/directory/{directoryId}/newField/text
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryEdit:newTextField }
+directoki_admin_project_locale_directory_new_string_with_locale_field:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/stringWithLocale
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newStringWithLocaleField }
 
-directoki_admin_project_directory_new_boolean_field:
-    path:     /admin/project/{projectId}/directory/{directoryId}/newField/boolean
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryEdit:newBooleanField }
+directoki_admin_project_locale_directory_new_text_field:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/text
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newTextField }
 
-directoki_admin_project_directory_new_latlng_field:
-    path:     /admin/project/{projectId}/directory/{directoryId}/newField/latlng
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryEdit:newLatLngField }
+directoki_admin_project_locale_directory_new_boolean_field:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/boolean
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newBooleanField }
 
-directoki_admin_project_directory_new_email_field:
-    path:     /admin/project/{projectId}/directory/{directoryId}/newField/email
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryEdit:newEmailField }
+directoki_admin_project_locale_directory_new_latlng_field:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/latlng
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newLatLngField }
 
-directoki_admin_project_directory_new_multi_select_field:
-    path:     /admin/project/{projectId}/directory/{directoryId}/newField/multiSelect
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryEdit:newMultiSelectField }
+directoki_admin_project_locale_directory_new_email_field:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/email
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newEmailField }
 
-directoki_admin_project_directory_new_url_field:
-    path:     /admin/project/{projectId}/directory/{directoryId}/newField/url
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryEdit:newURLField }
+directoki_admin_project_locale_directory_new_multi_select_field:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/multiSelect
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newMultiSelectField }
 
-directoki_admin_project_directory_fields:
-    path:     /admin/project/{projectId}/directory/{directoryId}/field
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectory:fields }
+directoki_admin_project_locale_directory_new_url_field:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/url
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newURLField }
 
-
-directoki_admin_project_directory_field_select_values_list:
-    path:     /admin/project/{projectId}/directory/{directoryId}/field/{fieldId}/selectValues
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryField:selectValues }
-
-directoki_admin_project_directory_field_new_select_value:
-    path:     /admin/project/{projectId}/directory/{directoryId}/field/{fieldId}/newSelectValue
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryFieldEdit:newSelectValue }
+directoki_admin_project_locale_directory_fields:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/field
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectory:fields }
 
 
-directoki_admin_project_directory_record_list:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectory:records }
+directoki_admin_project_locale_directory_field_select_values_list:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/field/{fieldId}/selectValues
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryField:selectValues }
 
-directoki_admin_project_directory_record_list_needing_attention:
-    path:     /admin/project/{projectId}/directory/{directoryId}/recordsNeedingAttention
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectory:recordsNeedingAttention }
-
-directoki_admin_project_directory_new_record:
-    path:     /admin/project/{projectId}/directory/{directoryId}/newRecord
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryEdit:newRecord }
-
-directoki_admin_project_directory_record_show:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecord:index }
-
-directoki_admin_project_directory_record_contacts:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}/contacts
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecord:contacts }
+directoki_admin_project_locale_directory_field_new_select_value:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/field/{fieldId}/newSelectValue
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryFieldEdit:newSelectValue }
 
 
-directoki_admin_project_directory_record_note_new:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}/newNote
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecordEdit:newNote }
+directoki_admin_project_locale_directory_record_list:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectory:records }
+
+directoki_admin_project_locale_directory_record_list_needing_attention:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/recordsNeedingAttention
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectory:recordsNeedingAttention }
+
+directoki_admin_project_locale_directory_new_record:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newRecord
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newRecord }
+
+directoki_admin_project_locale_directory_record_show:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecord:index }
+
+directoki_admin_project_locale_directory_record_contacts:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/contacts
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecord:contacts }
 
 
-directoki_admin_project_directory_record_report_new:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}/newReport
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecordEdit:newReport }
+directoki_admin_project_locale_directory_record_note_new:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/newNote
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecordEdit:newNote }
 
 
-directoki_admin_project_directory_record_moderate:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}/moderate
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecordEdit:moderate }
+directoki_admin_project_locale_directory_record_report_new:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/newReport
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecordEdit:newReport }
 
-directoki_admin_project_directory_record_report_resolve:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}/report/{reportId}/resolve
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecordReportEdit:resolve }
 
-directoki_admin_project_directory_record_state_edit_draft:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}/editStateDraft
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecordEdit:editStateDraft }
+directoki_admin_project_locale_directory_record_moderate:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/moderate
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecordEdit:moderate }
 
-directoki_admin_project_directory_record_state_edit_delete:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}/editStateDelete
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecordEdit:editStateDelete }
+directoki_admin_project_locale_directory_record_report_resolve:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/report/{reportId}/resolve
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecordReportEdit:resolve }
 
-directoki_admin_project_directory_record_state_edit_publish:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}/editStatePublish
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecordEdit:editStatePublish }
+directoki_admin_project_locale_directory_record_state_edit_draft:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/editStateDraft
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecordEdit:editStateDraft }
 
-directoki_admin_project_directory_record_field_edit:
-    path:     /admin/project/{projectId}/directory/{directoryId}/record/{recordId}/field/{fieldId}/edit
-    defaults: { _controller: DirectokiBundle:AdminProjectDirectoryRecordFieldEdit:edit }
+directoki_admin_project_locale_directory_record_state_edit_delete:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/editStateDelete
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecordEdit:editStateDelete }
+
+directoki_admin_project_locale_directory_record_state_edit_publish:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/editStatePublish
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecordEdit:editStatePublish }
+
+directoki_admin_project_locale_directory_record_field_edit:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/record/{recordId}/field/{fieldId}/edit
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryRecordFieldEdit:edit }
 
 
 directoki_api1_project_list_json:

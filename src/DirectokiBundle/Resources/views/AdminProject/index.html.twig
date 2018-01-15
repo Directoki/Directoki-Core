@@ -19,41 +19,40 @@
 	<h1>Project: {{  project.title }}</h1>
 
 
-	{%  if  directories %}
+    {%  if  locales %}
 		<table class="table table-striped">
 			<thead>
 			<tr>
-				<th>Type</th>
-				<th># Records Needing Attention</th>
+				<th>Id</th>
+				<th>Title</th>
 				<th>&nbsp;</th>
 			</tr>
 			</thead>
 			<tbody>
-			{%  for directory in directories %}
+            {%  for locale in locales %}
 				<tr>
 					<td>
-						{{  directory.titlePlural }}
+                        {{  locale.publicId }}
 					</td>
 					<td>
-						{{  directory | directoki_directory_count_records_needing_attention }}
+                        {{  locale.title }}
 					</td>
 					<td>
-						<a href="{{  path('directoki_admin_project_directory_show', { 'projectId':project.publicId,'directoryId':directory.publicId }) }}" class="btn btn-default">View</a>
+						&nbsp;<a href="{{  path('directoki_admin_project_locale_show', { 'projectId':project.publicId, 'localeId':locale.publicId }) }}" class="btn btn-default">View</a>
 					</td>
 				</tr>
-			{%  endfor %}
+            {%  endfor %}
 			</tbody>
 		</table>
-	{% else %}
-		<p>You have no directories</p>
-	{% endif %}
+    {% else %}
+		<p>You have no locales</p>
+    {% endif %}
 
-	<a href="{{  path('directoki_admin_project_directory_new', { 'projectId':project.publicId  }) }}" class="btn btn-default">New Directory</a>
 	<a href="{{  path('directoki_admin_project_user_list', { 'projectId':project.publicId  }) }}" class="btn btn-default">Project Users</a>
 	<a href="{{  path('directoki_admin_project_contact_list', { 'projectId':project.publicId  }) }}" class="btn btn-default">Contacts</a>
 	<a href="{{  path('directoki_admin_project_history_list', { 'projectId':project.publicId  }) }}" class="btn btn-default">History</a>
-	<a href="{{  path('directoki_admin_project_locale_list', { 'projectId':project.publicId  }) }}" class="btn btn-default">Locale</a>
 	<a href="{{  path('directoki_admin_project_stats', { 'projectId':project.publicId  }) }}" class="btn btn-default">Stats</a>
+	<a href="{{  path('directoki_admin_project_locale_new', { 'projectId':project.publicId  }) }}" class="btn btn-default">New Locale</a>
 	<a href="{{  path('directoki_admin_project_settings', { 'projectId':project.publicId  }) }}" class="btn btn-default">Settings</a>
 
 {%  endblock %}

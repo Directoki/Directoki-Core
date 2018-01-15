@@ -19,6 +19,9 @@ class AdminProjectHistoryController extends Controller
     /** @var Project */
     protected $project;
 
+    /** @var Locale */
+    protected $locale;
+
     /** @var Event */
     protected $event;
 
@@ -31,6 +34,10 @@ class AdminProjectHistoryController extends Controller
             throw new  NotFoundHttpException('Not found');
         }
         $this->denyAccessUnlessGranted(ProjectVoter::ADMIN, $this->project);
+        // load
+        $repository = $doctrine->getRepository('DirectokiBundle:Locale');
+        $this->locale = $repository->findOneByProject($this->project);
+        // TODO load by user input, not just selecting one at random!
         // load
         $repository = $doctrine->getRepository('DirectokiBundle:Event');
         $this->event = $repository->findOneBy(array('project'=>$this->project, 'id'=>$historyId));
@@ -69,6 +76,7 @@ class AdminProjectHistoryController extends Controller
 
         return $this->render('DirectokiBundle:AdminProjectHistory:index.html.twig', array(
             'project' => $this->project,
+            'locale' => $this->locale,
             'event' => $this->event,
             'recordsCreated' => $recordsCreated,
             'directoriesCreated' => $directoriesCreated,

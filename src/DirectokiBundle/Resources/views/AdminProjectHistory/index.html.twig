@@ -120,7 +120,7 @@
                             {{ directoryCreated.titleSingular  }}
                         </td>
                         <td>
-                            <a href="{{  path('directoki_admin_project_directory_show', { 'projectId':project.publicId,'directoryId':directoryCreated.publicId }) }}" class="btn btn-default">View</a>
+                            <a href="{{  path('directoki_admin_project_locale_directory_show', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':directoryCreated.publicId }) }}" class="btn btn-default">View</a>
                         </td>
                     </tr>
                 {%  endfor %}
@@ -210,7 +210,7 @@
                             {{  recordCreated.publicId }}
                         </td>
                         <td>
-                            <a href="{{  path('directoki_admin_project_directory_record_show', { 'projectId':project.publicId,'directoryId':recordCreated.directory.publicId, 'recordId':recordCreated.publicId }) }}" class="btn btn-default">View</a>
+                            <a href="{{  path('directoki_admin_project_locale_directory_record_show', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':recordCreated.directory.publicId, 'recordId':recordCreated.publicId }) }}" class="btn btn-default">View</a>
                         </td>
                     </tr>
                 {%  endfor %}
@@ -274,7 +274,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{{  path('directoki_admin_project_directory_record_show', { 'projectId':project.publicId,'directoryId':recordState.record.directory.publicId, 'recordId':recordState.record.publicId }) }}" class="btn btn-default">View</a>
+                            <a href="{{  path('directoki_admin_project_locale_directory_record_show', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':recordState.record.directory.publicId, 'recordId':recordState.record.publicId }) }}" class="btn btn-default">View</a>
                         </td>
                     </tr>
                 {%  endfor %}
@@ -298,7 +298,7 @@
                         {{  reportCreated.record.publicId }}
                     </td>
                     <td>
-                        <a href="{{  path('directoki_admin_project_directory_record_show', { 'projectId':project.publicId,'directoryId':reportCreated.record.directory.publicId, 'recordId':reportCreated.record.publicId }) }}" class="btn btn-default">View</a>
+                        <a href="{{  path('directoki_admin_project_locale_directory_record_show', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':reportCreated.record.directory.publicId, 'recordId':reportCreated.record.publicId }) }}" class="btn btn-default">View</a>
                     </td>
                 </tr>
             {%  endfor %}
@@ -322,7 +322,7 @@
                         {{  reportResolved.record.publicId }}
                     </td>
                     <td>
-                        <a href="{{  path('directoki_admin_project_directory_record_show', { 'projectId':project.publicId,'directoryId':reportResolved.record.directory.publicId, 'recordId':reportResolved.record.publicId }) }}" class="btn btn-default">View</a>
+                        <a href="{{  path('directoki_admin_project_locale_directory_record_show', { 'projectId':project.publicId,'localeId':locale.publicId,'directoryId':reportResolved.record.directory.publicId, 'recordId':reportResolved.record.publicId }) }}" class="btn btn-default">View</a>
                     </td>
                 </tr>
             {%  endfor %}

@@ -33,51 +33,6 @@ class AdminProjectEditController extends AdminProjectController
     }
 
 
-    public function newDirectoryAction(string $projectId, Request $request)
-    {
-
-        // build
-        $this->build($projectId);
-        //data
-
-        $doctrine = $this->getDoctrine()->getManager();
-
-
-        $directory = new Directory();
-        $directory->setProject($this->project);
-
-        $form = $this->createForm( DirectoryNewType::class, $directory);
-        if ($request->getMethod() == 'POST') {
-            $form->handleRequest($request);
-            if ($form->isValid()) {
-
-                $event = $this->get('directoki_event_builder_service')->build(
-                    $this->project,
-                    $this->getUser(),
-                    $request,
-                    null
-                );
-                $doctrine->persist($event);
-
-                $directory->setCreationEvent($event);
-                $doctrine->persist($directory);
-
-                $doctrine->flush();
-
-                return $this->redirect($this->generateUrl('directoki_admin_project_directory_show', array(
-                    'projectId'=>$this->project->getPublicId(),
-                    'directoryId'=>$directory->getPublicId()
-                )));
-            }
-        }
-
-
-        return $this->render('DirectokiBundle:AdminProjectEdit:newDirectory.html.twig', array(
-            'project' => $this->project,
-            'form' => $form->createView(),
-        ));
-
-    }
 
     public function newLocaleAction(string $projectId, Request $request)
     {
@@ -110,8 +65,9 @@ class AdminProjectEditController extends AdminProjectController
 
                 $doctrine->flush();
 
-                return $this->redirect($this->generateUrl('directoki_admin_project_locale_list', array(
+                return $this->redirect($this->generateUrl('directoki_admin_project_locale_show', array(
                     'projectId'=>$this->project->getPublicId(),
+                    'localeId'=>$locale->getPublicId(),
                 )));
             }
         }

@@ -39,12 +39,11 @@ class AdminProjectController extends Controller
         //data
 
         $doctrine = $this->getDoctrine()->getManager();
-        $repo = $doctrine->getRepository('DirectokiBundle:Directory');
-        $directories = $repo->findByProject($this->project);
+        $locales = $doctrine->getRepository('DirectokiBundle:Locale')->findByProject($this->project);
 
         return $this->render('DirectokiBundle:AdminProject:index.html.twig', array(
             'project' => $this->project,
-            'directories' => $directories,
+            'locales' => $locales,
         ));
 
     }
@@ -132,26 +131,6 @@ class AdminProjectController extends Controller
         return $this->render('DirectokiBundle:AdminProject:settings.html.twig', array(
             'project' => $this->project,
         ));
-    }
-
-
-
-    public function localeAction(string $projectId)
-    {
-
-        // build
-        $this->build($projectId);
-        //data
-
-        $doctrine = $this->getDoctrine()->getManager();
-        $repo = $doctrine->getRepository('DirectokiBundle:Locale');
-        $locales = $repo->findBy(array('project'=>$this->project),array('title'=>'asc'));
-
-        return $this->render('DirectokiBundle:AdminProject:locale.html.twig', array(
-            'project' => $this->project,
-            'locales' => $locales,
-        ));
-
     }
 
 
