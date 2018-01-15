@@ -3,6 +3,7 @@
 namespace DirectokiBundle\Controller;
 
 
+use DirectokiBundle\Action\UpdateSelectValueCache;
 use DirectokiBundle\Entity\SelectValue;
 use DirectokiBundle\Entity\SelectValueHasTitle;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
@@ -75,6 +76,9 @@ class AdminProjectLocaleDirectoryFieldEditController extends AdminProjectLocaleD
                 }
 
                 $doctrine->flush();
+
+                $action = new UpdateSelectValueCache($this->container);
+                $action->go($selectValue);
 
                 return $this->redirect($this->generateUrl('directoki_admin_project_locale_directory_field_select_values_list', array(
                     'projectId'=>$this->project->getPublicId(),
