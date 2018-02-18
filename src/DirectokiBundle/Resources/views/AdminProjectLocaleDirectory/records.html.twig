@@ -54,7 +54,7 @@
 						{{ record.cachedState }}
 					</td>
 					<td>
-						<a href="{{  path('directoki_admin_project_directory_locale_record_show', { 'projectId':project.publicId, 'localeId':locale.publicId,'directoryId':directory.publicId, 'recordId':record.publicId }) }}" class="btn btn-default">View</a>
+						<a href="{{  path('directoki_admin_project_locale_directory_record_show', { 'projectId':project.publicId, 'localeId':locale.publicId,'directoryId':directory.publicId, 'recordId':record.publicId }) }}" class="btn btn-default">View</a>
 					</td>
 				</tr>
 			{%  endfor %}
