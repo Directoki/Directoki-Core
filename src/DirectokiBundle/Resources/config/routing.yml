@@ -149,6 +149,10 @@ directoki_admin_project_locale_directory_new_url_field:
     path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/url
     defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newURLField }
 
+directoki_admin_project_locale_directory_new_date_field:
+    path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/newField/date
+    defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectoryEdit:newDateField }
+
 directoki_admin_project_locale_directory_fields:
     path:     /admin/project/{projectId}/locale/{localeId}/directory/{directoryId}/field
     defaults: { _controller: DirectokiBundle:AdminProjectLocaleDirectory:fields }

@@ -8,12 +8,15 @@ use DirectokiBundle\Entity\Project;
 
 use DirectokiBundle\Entity\RecordHasState;
 use DirectokiBundle\Exception\DataValidationException;
+use DirectokiBundle\FieldType\FieldTypeDate;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
 use DirectokiBundle\FieldType\FieldTypeString;
 use DirectokiBundle\FieldType\FieldTypeStringWithLocale;
 use DirectokiBundle\FieldType\FieldTypeText;
+use DirectokiBundle\InternalAPI\V1\Model\FieldValueDate;
+use DirectokiBundle\InternalAPI\V1\Model\FieldValueDateEdit;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueEmail;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueEmailEdit;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueLatLng;
@@ -141,6 +144,8 @@ class InternalAPIDirectory
                     $fieldValues[ $field->getPublicId() ] = new FieldValueText( $field->getPublicId(), $field->getTitle(), $tmp[0]->getValue() );
                 } else if ( $field->getFieldType() == FieldTypeEmail::FIELD_TYPE_INTERNAL && $tmp[0] ) {
                     $fieldValues[ $field->getPublicId() ] = new FieldValueEmail( $field->getPublicId(), $field->getTitle(), $tmp[0]->getValue() );
+                } else if ( $field->getFieldType() == FieldTypeDate::FIELD_TYPE_INTERNAL && $tmp[0] ) {
+                    $fieldValues[ $field->getPublicId() ] = new FieldValueDate( $field->getPublicId(), $field->getTitle(), $tmp[0]->getValue() );
                 } else if ( $field->getFieldType() == FieldTypeLatLng::FIELD_TYPE_INTERNAL && $tmp[0] ) {
                     $fieldValues[ $field->getPublicId() ] = new FieldValueLatLng( $field->getPublicId(), $field->getTitle(), $tmp[0]->getLat(), $tmp[0]->getLng()  );
                 } else if ($field->getFieldType() == FieldTypeMultiSelect::FIELD_TYPE_INTERNAL) {
@@ -184,6 +189,8 @@ class InternalAPIDirectory
                 $fields[$field->getPublicId()] = new FieldValueEmailEdit(null, $field);
             } else if ($field->getFieldType() == FieldTypeLatLng::FIELD_TYPE_INTERNAL) {
                 $fields[$field->getPublicId()] = new FieldValueLatLngEdit(null, $field);
+            } else if ($field->getFieldType() == FieldTypeDate::FIELD_TYPE_INTERNAL) {
+                $fields[$field->getPublicId()] = new FieldValueDateEdit(null, $field);
             } else if ($field->getFieldType() == FieldTypeMultiSelect::FIELD_TYPE_INTERNAL) {
                 $fields[$field->getPublicId()] = new FieldValueMultiSelectEdit(null, $field);
             }

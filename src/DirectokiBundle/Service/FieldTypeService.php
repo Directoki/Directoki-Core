@@ -4,6 +4,7 @@ namespace DirectokiBundle\Service;
 
 use DirectokiBundle\Entity\Field;
 use DirectokiBundle\FieldType\FieldTypeBoolean;
+use DirectokiBundle\FieldType\FieldTypeDate;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeString;
@@ -36,6 +37,7 @@ class FieldTypeService
         $this->fieldTypes[] = new FieldTypeEmail($container);
         $this->fieldTypes[] = new FieldTypeURL($container);
         $this->fieldTypes[] = new FieldTypeMultiSelect($container);
+        $this->fieldTypes[] = new FieldTypeDate($container);
     }
 
     protected $fieldTypes = array();
