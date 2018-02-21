@@ -437,5 +437,110 @@ class API1ProjectDirectoryRecordEditControllerFieldDateWithDataBaseTest extends 
     }
 
 
+
+
+
+    /** If field has value, but null value passed, we should have new records */
+    function testDatePassNullWithExisting() {
+
+
+        $user = new User();
+        $user->setEmail('test1@example.com');
+        $user->setPassword('password');
+        $user->setUsername('test1');
+        $this->em->persist($user);
+
+        $project = new Project();
+        $project->setTitle('test1');
+        $project->setPublicId('test1');
+        $project->setOwner($user);
+        $this->em->persist($project);
+
+
+        $event = new Event();
+        $event->setProject($project);
+        $event->setUser($user);
+        $this->em->persist($event);
+
+        $directory = new Directory();
+        $directory->setPublicId('resource');
+        $directory->setTitleSingular('Resource');
+        $directory->setTitlePlural('Resources');
+        $directory->setProject($project);
+        $directory->setCreationEvent($event);
+        $this->em->persist($directory);
+
+        $field = new Field();
+        $field->setTitle('Date');
+        $field->setPublicId('date');
+        $field->setDirectory($directory);
+        $field->setFieldType(FieldTypeDate::FIELD_TYPE_INTERNAL);
+        $field->setCreationEvent($event);
+        $this->em->persist($field);
+
+
+        $record = new Record();
+        $record->setDirectory($directory);
+        $record->setCreationEvent($event);
+        $this->em->persist($record);
+
+
+
+        $recordHasFieldDateValue = new RecordHasFieldDateValue();
+        $recordHasFieldDateValue->setRecord($record);
+        $recordHasFieldDateValue->setField($field);
+        $recordHasFieldDateValue->setValue(new \DateTime('2016-01-01'));
+        $recordHasFieldDateValue->setApprovedAt(new \DateTime());
+        $recordHasFieldDateValue->setCreationEvent($event);
+        $this->em->persist($recordHasFieldDateValue);
+
+        $this->em->flush();
+
+        # TEST
+
+
+        $values = $this->em->getRepository('DirectokiBundle:RecordHasFieldDateValue')->findAll();
+        $this->assertEquals(1, count($values));
+
+        $contacts = $this->em->getRepository('DirectokiBundle:Contact')->findAll();
+        $this->assertEquals(0, count($contacts));
+
+
+        # CALL API
+        $client = $this->container->get('test.client');
+
+        $client->request('POST', '/api1/project/test1/directory/resource/record/' . $record->getPublicId() . '/edit.json', array(
+            'field_date_value' => '',
+            'comment' => 'No Date',
+            'email' => 'user1@example.com',
+        ));
+
+        $this->assertEquals(200, $client->getResponse()->getStatusCode());
+        $data = json_decode($client->getResponse()->getContent(), true);
+
+        $this->assertEquals(true, $data['success']);
+
+        # TEST AGAIN
+
+
+
+        $values = $this->em->getRepository('DirectokiBundle:RecordHasFieldDateValue')->findAll();
+        $this->assertEquals(2, count($values));
+
+        $value = $values[0];
+        $this->assertEquals("2016-01-01", $value->getValue()->format('Y-m-d'));
+
+        $value = $values[1];
+        $this->assertNull($value->getValue());
+
+        $contacts = $this->em->getRepository('DirectokiBundle:Contact')->findAll();
+        $this->assertEquals(1, count($contacts));
+        $this->assertEquals('user1@example.com', $contacts[0]->getEmail());
+
+    }
+
+
+
+
 }
 

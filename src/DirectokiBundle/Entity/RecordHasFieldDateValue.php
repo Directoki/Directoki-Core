@@ -35,9 +35,9 @@ class RecordHasFieldDateValue extends BaseRecordHasFieldValue
     }
 
     /**
-     * @param \DateTime $value
+     * @param \DateTime $value nullable!
      */
-    public function setValue(\DateTime $value)
+    public function setValue( $value)
     {
         $this->value = $value;
     }

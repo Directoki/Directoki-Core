@@ -241,18 +241,31 @@ class FieldTypeDate extends  BaseFieldType {
     }
 
     public static function filterValue($value) {
-        return $value instanceof \DateTime ? $value : new \DateTime($value);
+        // If we already have a DateTime, don't do anything
+        if ($value instanceof  \DateTime) {
+            return $value;
+        }
+        // If nothing is passed, return nothing
+        if (trim($value) == '') {
+            return null;
+        }
+        // Make text into a DateTime!
+        return new \DateTime($value);
     }
 
     protected function checkAndProcessValueForExistingRecord($newValue, Field $field, Record $record, Event $event, $published = false, $formField = null)
     {
         $newValue = self::filterValue($newValue);
-        $currentValue = '';
+        $currentValue = null;
         if ( $record !== null ) {
             $latestValueObject = $this->getLatestFieldValue($field, $record);
             $currentValue = self::filterValue($latestValueObject->getValue());
         }
-        if ($newValue && (!$currentValue || $newValue->format('Y-m-d') != $currentValue->format('Y-m-d'))) {
+        # IF
+        #  A Both current and new are DateTime but they have different values OR
+        #  B There is a new value but the current value is NULL OR
+        #  C There is a current value but the the new value is NULL
+        if (($newValue && $currentValue && $newValue->format('Y-m-d') != $currentValue->format('Y-m-d')) || ($newValue && !$currentValue) || ($currentValue && !$newValue)) {
             return $this->processValue($newValue, $field, $record, $event, $published, $formField);
         }
         return null;
