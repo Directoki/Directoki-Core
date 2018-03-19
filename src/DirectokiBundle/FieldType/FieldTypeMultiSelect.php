@@ -198,7 +198,7 @@ class FieldTypeMultiSelect extends  BaseFieldType
             $out[] = array(
                 'value' => array(
                     'id' => $value->getSelectValue()->getPublicId(),
-                    'title' => $value->getSelectValue()->getTitle(),
+                    'title' => ( $localeMode instanceof SingleLocaleMode ? $value->getSelectValue()->getCachedTitleForLocale($localeMode->getLocale()) : ''),
                 )
             );
         }
