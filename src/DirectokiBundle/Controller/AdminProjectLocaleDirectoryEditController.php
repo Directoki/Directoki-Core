@@ -13,6 +13,7 @@ use DirectokiBundle\FieldType\FieldTypeDate;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
+use DirectokiBundle\FieldType\FieldTypeSelect;
 use DirectokiBundle\FieldType\FieldTypeString;
 use DirectokiBundle\FieldType\FieldTypeStringWithLocale;
 use DirectokiBundle\FieldType\FieldTypeText;
@@ -22,6 +23,7 @@ use DirectokiBundle\Form\Type\FieldNewDateType;
 use DirectokiBundle\Form\Type\FieldNewEmailType;
 use DirectokiBundle\Form\Type\FieldNewLatLngType;
 use DirectokiBundle\Form\Type\FieldNewMultiSelectType;
+use DirectokiBundle\Form\Type\FieldNewSelectType;
 use DirectokiBundle\Form\Type\FieldNewStringType;
 use DirectokiBundle\Form\Type\FieldNewStringWithLocaleType;
 use DirectokiBundle\Form\Type\FieldNewTextType;
@@ -514,6 +516,59 @@ class AdminProjectLocaleDirectoryEditController extends AdminProjectLocaleDirect
 
 
         return $this->render('DirectokiBundle:AdminProjectLocaleDirectoryEdit:newDateField.html.twig', array(
+            'project' => $this->project,
+            'locale' => $this->locale,
+            'directory' => $this->directory,
+            'form' => $form->createView(),
+        ));
+
+
+    }
+
+
+    public function newSelectFieldAction(string $projectId, string $localeId, string $directoryId, Request $request)
+    {
+
+        // build
+        $this->build($projectId, $localeId, $directoryId);
+        //data
+
+        $doctrine = $this->getDoctrine()->getManager();
+
+
+        $field = new Field();
+        $field->setDirectory($this->directory);
+        $field->setFieldType(FieldTypeSelect::FIELD_TYPE_INTERNAL);
+
+        $form = $this->createForm( FieldNewSelectType::class, $field);
+        if ($request->getMethod() == 'POST') {
+            $form->handleRequest($request);
+            if ($form->isValid()) {
+
+                $event = $this->get('directoki_event_builder_service')->build(
+                    $this->project,
+                    $this->getUser(),
+                    $request,
+                    null
+                );
+                $doctrine->persist($event);
+
+                $field->setSort($doctrine->getRepository('DirectokiBundle:Field')->getNextFieldSortValue($this->directory));
+                $field->setCreationEvent($event);
+                $doctrine->persist($field);
+
+                $doctrine->flush();
+
+                return $this->redirect($this->generateUrl('directoki_admin_project_locale_directory_fields', array(
+                    'projectId'=>$this->project->getPublicId(),
+                    'localeId'=>$this->locale->getPublicId(),
+                    'directoryId'=>$this->directory->getPublicId()
+                )));
+            }
+        }
+
+
+        return $this->render('DirectokiBundle:AdminProjectLocaleDirectoryEdit:newSelectField.html.twig', array(
             'project' => $this->project,
             'locale' => $this->locale,
             'directory' => $this->directory,

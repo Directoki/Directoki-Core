@@ -521,7 +521,7 @@ class FieldTypeMultiSelect extends  BaseFieldType
     {
         $out = array();
         foreach($this->getLatestFieldValues($field, $record) as $value) {
-            $out[] = $value->getSelectValue()->getTitle();
+            $out[] = $value->getSelectValue()->getTitle(); // TODO locale?
         }
         return array( implode(", ", $out) );
     }

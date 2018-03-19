@@ -7,6 +7,7 @@ use DirectokiBundle\FieldType\FieldTypeBoolean;
 use DirectokiBundle\FieldType\FieldTypeDate;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
+use DirectokiBundle\FieldType\FieldTypeSelect;
 use DirectokiBundle\FieldType\FieldTypeString;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
 use DirectokiBundle\FieldType\FieldTypeStringWithLocale;
@@ -38,6 +39,7 @@ class FieldTypeService
         $this->fieldTypes[] = new FieldTypeURL($container);
         $this->fieldTypes[] = new FieldTypeMultiSelect($container);
         $this->fieldTypes[] = new FieldTypeDate($container);
+        $this->fieldTypes[] = new FieldTypeSelect($container);
     }
 
     protected $fieldTypes = array();

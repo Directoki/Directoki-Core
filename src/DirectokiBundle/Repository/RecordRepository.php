@@ -180,6 +180,17 @@ class RecordRepository extends EntityRepository {
 
         $count =  $this->getEntityManager()
             ->createQuery(
+                ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldSelectValue r'.
+                ' WHERE r.record = :record AND r.refusedAt IS NULL AND r.approvedAt IS NULL '
+            )
+            ->setParameter('record', $record)
+            ->getSingleScalarResult();
+        if ($count > 0) {
+            return true;
+        }
+
+        $count =  $this->getEntityManager()
+            ->createQuery(
                 ' SELECT count(r) FROM DirectokiBundle:RecordHasFieldMultiSelectValue r'.
                 ' WHERE r.record = :record AND r.removalCreatedAt IS NOT NULL AND r.removalApprovedAt IS NULL AND r.removalRefusedAt IS NULL '
             )

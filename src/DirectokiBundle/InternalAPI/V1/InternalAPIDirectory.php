@@ -12,6 +12,7 @@ use DirectokiBundle\FieldType\FieldTypeDate;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
+use DirectokiBundle\FieldType\FieldTypeSelect;
 use DirectokiBundle\FieldType\FieldTypeString;
 use DirectokiBundle\FieldType\FieldTypeStringWithLocale;
 use DirectokiBundle\FieldType\FieldTypeText;
@@ -23,6 +24,8 @@ use DirectokiBundle\InternalAPI\V1\Model\FieldValueLatLng;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueLatLngEdit;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueMultiSelect;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueMultiSelectEdit;
+use DirectokiBundle\InternalAPI\V1\Model\FieldValueSelect;
+use DirectokiBundle\InternalAPI\V1\Model\FieldValueSelectEdit;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueString;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueStringEdit;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueStringWithLocale;
@@ -159,6 +162,17 @@ class InternalAPIDirectory
                         }
                     }
                     $fieldValues[$field->getPublicId()] = new FieldValueMultiSelect($field->getPublicId(), $field->getTitle(), $selectValues);
+                } else if ($field->getFieldType() == FieldTypeSelect::FIELD_TYPE_INTERNAL) {
+                    $selectValue = null;
+                    if ($tmp[0] && $tmp[0]->getSelectValue()) {
+                        if ($this->localeMode instanceof SingleLocaleMode) {
+                            $selectValue = new SelectValue($tmp[0]->getSelectValue()->getPublicId(), $tmp[0]->getSelectValue()->getCachedTitleForLocale($this->localeMode->getLocale()));
+                        } else {
+                            // TODO ?????????
+                            $selectValue = new SelectValue($tmp[0]->getSelectValue()->getPublicId(), '?');
+                        }
+                    }
+                    $fieldValues[$field->getPublicId()] = new FieldValueSelect($field->getPublicId(), $field->getTitle(), $selectValue);
                 }
             }
             $out[] = new Record($this->project->getPublicId(), $this->directory->getPublicId(), $record->getPublicId(), $fieldValues);
@@ -193,6 +207,8 @@ class InternalAPIDirectory
                 $fields[$field->getPublicId()] = new FieldValueDateEdit(null, $field);
             } else if ($field->getFieldType() == FieldTypeMultiSelect::FIELD_TYPE_INTERNAL) {
                 $fields[$field->getPublicId()] = new FieldValueMultiSelectEdit(null, $field);
+            } else if ($field->getFieldType() == FieldTypeSelect::FIELD_TYPE_INTERNAL) {
+                $fields[$field->getPublicId()] = new FieldValueSelectEdit(null, $field);
             }
         }
 

@@ -7,6 +7,7 @@ use DirectokiBundle\Action\UpdateSelectValueCache;
 use DirectokiBundle\Entity\SelectValue;
 use DirectokiBundle\Entity\SelectValueHasTitle;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
+use DirectokiBundle\FieldType\FieldTypeSelect;
 use DirectokiBundle\Form\Type\SelectValueNewType;
 use DirectokiBundle\Security\ProjectVoter;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -34,7 +35,7 @@ class AdminProjectLocaleDirectoryFieldEditController extends AdminProjectLocaleD
 
         // build
         $this->build($projectId, $localeId, $directoryId, $fieldId);
-        if ($this->field->getFieldType() != FieldTypeMultiSelect::FIELD_TYPE_INTERNAL) {
+        if ($this->field->getFieldType() != FieldTypeMultiSelect::FIELD_TYPE_INTERNAL && $this->field->getFieldType() != FieldTypeSelect::FIELD_TYPE_INTERNAL) {
             throw new  NotFoundHttpException('Not found');
         }
 

@@ -8,6 +8,7 @@ use DirectokiBundle\Entity\RecordHasState;
 use DirectokiBundle\FieldType\FieldTypeEmail;
 use DirectokiBundle\FieldType\FieldTypeLatLng;
 use DirectokiBundle\FieldType\FieldTypeMultiSelect;
+use DirectokiBundle\FieldType\FieldTypeSelect;
 use DirectokiBundle\FieldType\FieldTypeString;
 use DirectokiBundle\FieldType\FieldTypeText;
 use DirectokiBundle\InternalAPI\V1\Model\FieldValueEmail;
@@ -56,7 +57,7 @@ class InternalAPIField
 
     function getPublishedSelectValues() {
 
-        if ($this->field->getFieldType() != FieldTypeMultiSelect::FIELD_TYPE_INTERNAL) {
+        if ($this->field->getFieldType() != FieldTypeMultiSelect::FIELD_TYPE_INTERNAL && $this->field->getFieldType() != FieldTypeSelect::FIELD_TYPE_INTERNAL) {
             throw new \Exception('Not a Select Field!');
         }
 
