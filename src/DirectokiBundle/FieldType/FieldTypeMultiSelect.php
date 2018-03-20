@@ -519,9 +519,15 @@ class FieldTypeMultiSelect extends  BaseFieldType
 
     public function getExportCSVData(Field $field, Record $record)
     {
+
+
+        // TODO pass locale, don't just pick one at random
+        $repoLocale = $this->container->get('doctrine')->getManager()->getRepository('DirectokiBundle:Locale');
+        $locale = $repoLocale->findOneBy(['project'=>$record->getDirectory()->getProject()]);
+
         $out = array();
-        foreach($this->getLatestFieldValues($field, $record) as $value) {
-            $out[] = $value->getSelectValue()->getTitle();
+        foreach($this->getLatestFieldValues($field, $record) as $latestFieldValue) {
+            $out[] = $latestFieldValue->getSelectValue()->getCachedTitleForLocale($locale);
         }
         return array( implode(", ", $out) );
     }
